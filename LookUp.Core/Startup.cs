@@ -1,5 +1,7 @@
 ﻿using LookUp.Core.Config;
 using LookUp.Core.Helpers;
+using LookUp.Core.Rpc;
+using NBitcoin.RPC;
 using System;
 
 public class Startup
@@ -16,6 +18,19 @@ public class Startup
         string dataDir = Configuration["datadir"] ?? EnvironmentHelpers.GetDataDir(Path.Combine("LookUp", "Backend"));
         string configFilePath = Path.Combine(dataDir, "Config.json");
         Config config = Config.LoadFile(configFilePath);
+
+        services.AddSingleton(serviceProvider => config);
+        services.AddSingleton<IRPCClient>(serviceProvider =>
+        {
+            string host = config.GetBitcoinRpcUri();
+            RPCClient rpcClient = new(
+                authenticationString: config.BitcoinRpcConnectionString,
+                hostOrUri: host,
+                network: config.Network);
+
+            MyRPCClient myRPCClient = new MyRPCClient(rpcClient);
+            return myRPCClient;
+        });
 
         services.AddMemoryCache();
         services.AddMvc();
