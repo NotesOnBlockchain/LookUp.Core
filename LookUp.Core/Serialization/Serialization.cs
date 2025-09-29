@@ -2,6 +2,8 @@
 using LookUp.Core.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NBitcoin;
+using NBitcoin.DataEncoders;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
@@ -37,7 +39,47 @@ namespace LookUp.Core.Serialization
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonNode Object(IEnumerable<(string, JsonNode?)> values) => new JsonObject(values.ToDictionary(x => x.Item1, x => x.Item2));
 
-        public static JsonNode Network(Network network) => String(network.Name);
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonNode Int64(long value) => JsonValue.Create(value);
+
+        private static JsonNode Hexadecimal(byte[] bytes) =>
+        String(Convert.ToHexString(bytes));
+
+        public static JsonNode Network(Network network) =>
+            String(network.Name);
+
+        public static JsonNode UInt256(uint256 n) =>
+            String(n.ToString());
+
+        public static JsonNode Outpoint(OutPoint outPoint) =>
+            Hexadecimal(outPoint.ToBytes());
+
+        private static JsonNode Script(Script script) =>
+            String(script.ToString());
+
+        public static JsonNode MoneySatoshis(Money money) =>
+            Int64(money.Satoshi);
+
+        public static JsonNode MoneyBitcoins(Money money) =>
+            String(money.ToString(fplus: false, trimExcessZero: true));
+
+        private static JsonNode TxOut(TxOut txo) =>
+            Object([
+                ("ScriptPubKey", Script(txo.ScriptPubKey)),
+                ("Value", MoneySatoshis(txo.Value))
+            ]);
+
+        private static JsonNode Coin(Coin coin) =>
+            Object([
+                ("Outpoint", Outpoint(coin.Outpoint)),
+                ("TxOut", TxOut(coin.TxOut))
+            ]);
+
+        private static JsonNode FeeRate(FeeRate feeRate) =>
+            MoneySatoshis(feeRate.FeePerK);
+
+        private static JsonNode WitScript(WitScript witScript) =>
+            Hexadecimal(witScript.ToBytes());
 
         public static JsonNode Config(Config.Config cfg) =>
             Object([
@@ -64,6 +106,18 @@ namespace LookUp.Core.Serialization
 
     public static partial class Decode
     {
+        public static Decoder<T> Catch<T>(this Decoder<T> decoder) =>
+            value =>
+            {
+                try
+                {
+                    return decoder(value);
+                }
+                catch (Exception e)
+                {
+                    return Result<T, string>.Fail(e.Message);
+                }
+            };
         public static Decoder<Config.Config> Config(string filePath) =>
             Object(get => new Config.Config(filePath)
             {
@@ -82,11 +136,32 @@ namespace LookUp.Core.Serialization
                 return getters.Errors is [] ? result : Result<T, string>.Fail(string.Join("; ", getters.Errors));
             };
 
+        private static Result<string, string> GetString(JsonElement value)
+        {
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                if (value.GetString() is { } str)
+                {
+                    return Result<string, string>.Ok(str);
+                }
+
+                return Result<string, string>.Fail("It is empty");
+            }
+
+            return Result<string, string>.Fail("It is not a string");
+        }
+
         public static Decoder<string> String =>
             value =>
                 value.ValueKind == JsonValueKind.String
                     ? Result<string, string>.Ok(value.GetString()!)
                     : Result<string, string>.Fail("It is not a string");
+
+        public static Decoder<long> Int64 =>
+        value => Integral("a long integer", long.TryParse, long.MinValue, long.MaxValue, Convert.ToInt64, value);
+
+        public static readonly Decoder<uint256> UInt256 =
+            String.Map(s => new uint256(s)).Catch();
 
         public static readonly Decoder<Network> Network =
             String.AndThen(name =>
@@ -96,6 +171,74 @@ namespace LookUp.Core.Serialization
                     ? Succeed(network)
                     : Fail<Network>($"'{name}' is not a valid network.");
             });
+
+        public static readonly Decoder<byte[]> Hexadecimal =
+        String.Map(Encoders.Hex.DecodeData).Catch();
+
+        public static readonly Decoder<Money> MoneySatoshis =
+            Int64.Map(Money.Satoshis);
+
+        public static readonly Decoder<Money> MoneyBitcoins =
+            String.Map(Money.Parse).Catch();
+
+        public static readonly Decoder<FeeRate> FeeRate =
+            MoneySatoshis.Map(m => new FeeRate(m)).Catch();
+
+        public static readonly Decoder<WitScript> WitScript =
+            Hexadecimal.Map(hex => new WitScript(hex)).Catch();
+
+        public static readonly Decoder<OutPoint> OutPoint =
+            Hexadecimal.Map(bytes =>
+            {
+                var op = new OutPoint();
+                op.FromBytes(bytes);
+                return op;
+            }).Catch();
+
+        public static readonly Decoder<Script> Script =
+            String.Map(s => new Script(s)).Catch();
+
+        public static readonly Decoder<TxOut> TxOut =
+            Object(get => new TxOut(
+                get.Required("Value", MoneySatoshis),
+                get.Required("ScriptPubKey", Script)
+            ));
+
+        public static readonly Decoder<Coin> Coin =
+            Object(get => new Coin(
+                get.Required("Outpoint", OutPoint),
+                get.Required("TxOut", TxOut)
+            ));
+
+        private static Result<T, string> Integral<T>(
+        string name,
+        TryParse<T> tryParse,
+        long min,
+        long max,
+        Func<double, T> conv,
+        JsonElement value)
+        {
+            if (value.ValueKind == JsonValueKind.Number)
+            {
+                var rawText = value.GetRawText();
+                if (!rawText.Contains('.'))
+                {
+                    var doubleValue = value.GetDouble();
+                    return doubleValue >= min && doubleValue <= max
+                        ? conv(doubleValue)
+                        : Result<T, string>.Fail($"'{name}' is out of range for {typeof(T).Name}");
+                }
+            }
+            else if (value.ValueKind == JsonValueKind.String)
+            {
+                return GetString(value).Then(str => tryParse(str, out T? parsedValue)
+                    ? parsedValue
+                    : Result<T, string>.Fail($"The string is not a valid integral number of '{name}' type '{typeof(T).Name}'"));
+            }
+            return Result<T, string>.Fail($"It is not '{name}'");
+        }
+
+
         public class Getters(JsonElement value)
         {
             public List<string> Errors { get; } = [];
@@ -117,6 +260,8 @@ namespace LookUp.Core.Serialization
             public T Optional<T>(string fileName, Decoder<T> decoder, T def) where T : struct =>
                 Field(fileName, decoder)(value).Match(v => v, _ => def);
         }
+
+        private delegate bool TryParse<T>(string input, [NotNullWhen(true)] out T? result);
 
         public static Decoder<T> AndThen<T, R>(this Decoder<R> decoder, Func<R, Decoder<T>> cb) => AndThen(cb, decoder);
 
@@ -145,6 +290,12 @@ namespace LookUp.Core.Serialization
 
             return decoder(p);
         };
+        public static Decoder<T> Map<T, R>(this Decoder<R> decoder, Func<R, T> f) =>
+            value =>
+            {
+                var m = decoder(value);
+                return m.IsOk ? f(m.Value) : m.Error;
+            };
 
         public static class ConfigDecode
         {
