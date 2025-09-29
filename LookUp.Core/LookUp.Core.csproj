@@ -4,14 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <RootNamespace>LookUp.Core</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NBitcoin" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
