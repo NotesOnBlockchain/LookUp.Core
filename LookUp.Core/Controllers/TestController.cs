@@ -1,4 +1,5 @@
 ﻿using LookUp.Core.Rpc;
+using LookUp.Core.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using NBitcoin;
 
@@ -15,11 +16,11 @@ namespace LookUp.Core.Controllers
         public IRPCClient RpcClient { get; }
 
         [HttpGet]
-        public async Task<uint256> TestAsync()
+        public async Task<IActionResult> TestAsync()
         {
             uint256 bestBlockHash = await RpcClient.GetBestBlockHashAsync().ConfigureAwait(false);
 
-            return bestBlockHash;
+            return Ok(JsonEncoder.ToString(bestBlockHash, Encode.UInt256));
         }
     }
 }
