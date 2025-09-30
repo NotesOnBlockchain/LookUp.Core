@@ -46,6 +46,5 @@ public class Startup
     {
         app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());
-        app.UseSwagger();
     }
 }
