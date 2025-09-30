@@ -1,3 +1,4 @@
+using LookUp.Core.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +11,7 @@ namespace LookUp.Core
             try
             {
                 using var host = CreateHostBuilder(args).Build();
-                await host.RunAsync();
+                await host.RunWithTasksAsync();
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using LookUp.Core.Config;
+﻿using LookUp.Core;
+using LookUp.Core.Config;
 using LookUp.Core.Helpers;
 using LookUp.Core.Rpc;
 using NBitcoin.RPC;
@@ -35,6 +36,8 @@ public class Startup
         services.AddMemoryCache();
         services.AddMvc();
         services.AddControllers();
+
+        services.AddStartupTask<StartupTask>();
 
         services.AddEndpointsApiExplorer();
 
