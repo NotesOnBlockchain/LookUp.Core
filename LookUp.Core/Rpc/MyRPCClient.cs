@@ -45,61 +45,6 @@ namespace LookUp.Core.Rpc
             return await Rpc.GetBlockchainInfoAsync(cancellationToken).ConfigureAwait(false);
         }
 
-
-        public virtual async Task<MemPoolInfo> GetMempoolInfoAsync(CancellationToken cancel = default)
-        {
-            try
-            {
-                var response = await Rpc.SendCommandAsync(RPCOperations.getmempoolinfo, cancel, true)
-                    .ConfigureAwait(false);
-
-                static IEnumerable<FeeRateGroup> ExtractFeeRateGroups(JToken jt) =>
-                    jt switch
-                    {
-                        JObject jo => jo.Properties()
-                            .Where(p => p.Name != "total_fees")
-                            .Select(
-                                p => new FeeRateGroup
-                                {
-                                    Group = int.Parse(p.Name),
-                                    Sizes = p.Value.Value<ulong>("sizes"),
-                                    Count = p.Value.Value<uint>("count"),
-                                    Fees = Money.Satoshis(p.Value.Value<ulong>("fees")),
-                                    From = new FeeRate(p.Value.Value<decimal>("from_feerate")),
-                                    To = new FeeRate(Math.Min(50_000, p.Value.Value<decimal>("to_feerate")))
-                                }),
-                        _ => Enumerable.Empty<FeeRateGroup>()
-                    };
-
-                return new MemPoolInfo()
-                {
-                    Size = int.Parse((string)response.Result["size"]!, CultureInfo.InvariantCulture),
-                    Bytes = int.Parse((string)response.Result["bytes"]!, CultureInfo.InvariantCulture),
-                    Usage = int.Parse((string)response.Result["usage"]!, CultureInfo.InvariantCulture),
-                    MaxMemPool =
-                        double.Parse((string)response.Result["maxmempool"]!, CultureInfo.InvariantCulture),
-                    MemPoolMinFee = double.Parse(
-                        (string)response.Result["mempoolminfee"]!,
-                        CultureInfo.InvariantCulture),
-                    MinRelayTxFee = double.Parse(
-                        (string)response.Result["minrelaytxfee"]!,
-                        CultureInfo.InvariantCulture),
-                    Histogram = ExtractFeeRateGroups(response.Result["fee_histogram"]!).ToArray()
-                };
-            }
-            catch (RPCException ex) when (ex.RPCCode == RPCErrorCode.RPC_MISC_ERROR)
-            {
-                cancel.ThrowIfCancellationRequested();
-
-                return await Rpc.GetMemPoolAsync(cancel).ConfigureAwait(false);
-            }
-        }
-
-        public virtual async Task<uint256[]> GetRawMempoolAsync(CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetRawMempoolAsync(cancellationToken).ConfigureAwait(false);
-        }
-
         public virtual async Task<GetTxOutResponse?> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default)
         {
             return await Rpc.GetTxOutAsync(txid, index, includeMempool, cancellationToken).ConfigureAwait(false);
@@ -115,9 +60,20 @@ namespace LookUp.Core.Rpc
             return new MyRPCClient(Rpc.PrepareBatch());
         }
 
+        public async Task SendBatchAsync(CancellationToken cancellationToken = default)
+        {
+            await Rpc.SendBatchAsync(cancellationToken);
+        }
+
         public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(uint256 blockId, CancellationToken cancellationToken = default)
         {
             var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, blockId, 3).ConfigureAwait(false);
+            return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
+        }
+
+        public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(int height,  CancellationToken cancellationToken = default)
+        {
+            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, height, 3).ConfigureAwait(false);
             return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
         }
     }

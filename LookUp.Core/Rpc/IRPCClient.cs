@@ -21,14 +21,14 @@ namespace LookUp.Core.Rpc
 
         Task<BlockchainInfo> GetBlockchainInfoAsync(CancellationToken cancellationToken = default);
 
-        Task<uint256[]> GetRawMempoolAsync(CancellationToken cancellationToken = default);
-
-        Task<MemPoolInfo> GetMempoolInfoAsync(CancellationToken cancel = default);
-
         Task<GetTxOutResponse?> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default);
 
         IRPCClient PrepareBatch();
 
+        Task SendBatchAsync(CancellationToken cancellationToken = default);
+
         Task<VerboseBlockInfo> GetVerboseBlockAsync(uint256 blockId, CancellationToken cancellationToken = default);
+
+        Task<VerboseBlockInfo> GetVerboseBlockAsync(int height, CancellationToken cancellationToken = default);
     }
 }
