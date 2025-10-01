@@ -2,6 +2,7 @@
 using LookUp.Core.Config;
 using LookUp.Core.Helpers;
 using LookUp.Core.Rpc;
+using LookUp.Core.Services;
 using NBitcoin.RPC;
 using System;
 
@@ -21,17 +22,19 @@ public class Startup
         Config config = Config.LoadFile(configFilePath);
 
         services.AddSingleton(serviceProvider => config);
-        services.AddSingleton<IRPCClient>(serviceProvider =>
-        {
-            string host = config.GetBitcoinRpcUri();
-            RPCClient rpcClient = new(
-                authenticationString: config.BitcoinRpcConnectionString,
-                hostOrUri: host,
-                network: config.Network);
 
-            MyRPCClient myRPCClient = new MyRPCClient(rpcClient);
-            return myRPCClient;
-        });
+        string host = config.GetBitcoinRpcUri();
+        RPCClient rpcClient = new(
+            authenticationString: config.BitcoinRpcConnectionString,
+            hostOrUri: host,
+            network: config.Network);
+
+        MyRPCClient myRPCClient = new MyRPCClient(rpcClient);
+        services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
+
+        var scannerService = new ScannerService(myRPCClient);
+        services.AddSingleton(scannerService);
+        
 
         services.AddMemoryCache();
         services.AddMvc();
