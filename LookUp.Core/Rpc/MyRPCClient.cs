@@ -67,14 +67,19 @@ namespace LookUp.Core.Rpc
 
         public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(uint256 blockId, CancellationToken cancellationToken = default)
         {
-            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, blockId, 3).ConfigureAwait(false);
+            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, blockId, 2).ConfigureAwait(false);
             return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
         }
 
         public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(int height,  CancellationToken cancellationToken = default)
         {
-            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, height, 3).ConfigureAwait(false);
+            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, height).ConfigureAwait(false);
             return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
+        }
+
+        public virtual async Task<uint256> GetBlockHashAsync(int height, CancellationToken cancellationToken = default)
+        {
+            return await Rpc.GetBlockHashAsync(height, cancellationToken).ConfigureAwait(false);
         }
     }
 }

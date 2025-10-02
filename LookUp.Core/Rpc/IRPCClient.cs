@@ -15,6 +15,8 @@ namespace LookUp.Core.Rpc
 
         Task<Block> GetBlockAsync(uint blockHeight, CancellationToken cancellationToken = default);
 
+        Task<uint256> GetBlockHashAsync(int height, CancellationToken cancellationToken = default);
+
         Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash, CancellationToken cancellationToken = default);
 
         Task StopAsync(CancellationToken cancellationToken = default);
