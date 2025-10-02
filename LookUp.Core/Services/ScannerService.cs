@@ -25,17 +25,32 @@ namespace LookUp.Core.Services
             int start = LastScannedBlockHeight;
             int end = Math.Min(LastScannedBlockHeight + batchSize - 1, (int)tipHeight);
 
-            var blocks = await FetchBlocksAsync(start, end, stoppingToken).ConfigureAwait(false);
+            var blockHashes = await FetchBlockHashesAsnyc(start, end, stoppingToken);
+
+            var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
 
         }
 
-        private async Task<List<VerboseBlockInfo>> FetchBlocksAsync(int startingHeight, int endHeight, CancellationToken stoppingToken)
+        private async Task<List<uint256>> FetchBlockHashesAsnyc(int startingHeight, int endHeight, CancellationToken cancellationToken)
         {
-            var batch = RpcClient.PrepareBatch();
+            var batchClient = RpcClient.PrepareBatch();
 
-            var tasks = Enumerable.Range(startingHeight, endHeight).Select(x => RpcClient.GetVerboseBlockAsync(x, stoppingToken));
+            var tasks = Enumerable.Range(startingHeight, endHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
 
-            await batch.SendBatchAsync().ConfigureAwait(false);
+            await batchClient.SendBatchAsync().ConfigureAwait(false);
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            return [.. results.Where(x => x != null)];
+        }
+
+        private async Task<List<VerboseBlockInfo>> FetchBlocksAsync(List<uint256> blockHashes, CancellationToken cancellationToken)
+        {
+            var batchClient = RpcClient.PrepareBatch();
+
+            var tasks = blockHashes.Select(x => RpcClient.GetVerboseBlockAsync(x, cancellationToken));
+
+            await batchClient.SendBatchAsync().ConfigureAwait(false);
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
