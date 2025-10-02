@@ -33,7 +33,7 @@ public class Startup
         services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
 
         var scannerService = new ScannerService(myRPCClient);
-        services.AddSingleton(scannerService);
+        services.AddHostedService<ScannerService>();
         
 
         services.AddMemoryCache();
