@@ -41,7 +41,7 @@ namespace LookUp.Core.Services
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            return [.. results.Where(x => x != null)];
+            return [.. results];
         }
 
         private async Task<List<VerboseBlockInfo>> FetchBlocksAsync(List<uint256> blockHashes, CancellationToken cancellationToken)
