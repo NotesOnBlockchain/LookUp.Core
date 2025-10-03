@@ -1,6 +1,7 @@
 ﻿using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
 using NBitcoin;
+using System.Text;
 
 namespace LookUp.Core.Services
 {
@@ -29,6 +30,11 @@ namespace LookUp.Core.Services
 
             var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
 
+            foreach (var block in blocks) 
+            {
+                await ProcessBlockAsync(block).ConfigureAwait(false);
+            }
+
         }
 
         private async Task<List<uint256>> FetchBlockHashesAsnyc(int startingHeight, int endHeight, CancellationToken cancellationToken)
@@ -54,7 +60,41 @@ namespace LookUp.Core.Services
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            return [.. results.Where(x => x != null)];
+            return [.. results];
+        }
+
+        private async Task ProcessBlockAsync(VerboseBlockInfo block)
+        {
+            var tasks = Parallel.ForEach(block.Transactions,
+                new ParallelOptions { MaxDegreeOfParallelism = 40 },
+                tx => ProcessTransaction(tx));
+        }
+
+        private void ProcessTransaction(VerboseTransactionInfo tx)
+        {
+            var opReturnOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey.ExtractScriptCode(-1).ToString().Contains("OP_RETURN"));
+
+            if (opReturnOutput is null) 
+            {
+                return;
+            }
+
+            var script = opReturnOutput.ScriptPubKey.ExtractScriptCode(-1);
+            var parts = script.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            string hex = parts[1];
+
+            // Convert hex -> byte[]
+            byte[] bytes = Enumerable.Range(0, hex.Length / 2)
+                .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
+                .ToArray();
+
+            // Decode to string
+            string message = Encoding.UTF8.GetString(bytes);
+
+            // TODO: Save to DB if there is message
+
+            Console.WriteLine(message);
         }
     }
 }
