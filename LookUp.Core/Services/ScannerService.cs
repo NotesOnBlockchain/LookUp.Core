@@ -1,6 +1,7 @@
 ﻿using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
 using NBitcoin;
+using Newtonsoft.Json.Bson;
 using System.Text;
 
 namespace LookUp.Core.Services
@@ -23,18 +24,25 @@ namespace LookUp.Core.Services
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             ulong tipHeight = blockchainInfo.Blocks;
 
-            int start = LastScannedBlockHeight;
-            int end = Math.Min(LastScannedBlockHeight + batchSize - 1, (int)tipHeight);
-
-            var blockHashes = await FetchBlockHashesAsnyc(start, end, stoppingToken);
-
-            var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
-
-            foreach (var block in blocks) 
+            while ((int)tipHeight > LastScannedBlockHeight) 
             {
-                await ProcessBlockAsync(block).ConfigureAwait(false);
-            }
+                blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken).ConfigureAwait(false);
+                tipHeight = blockchainInfo.Blocks;
 
+                int start = LastScannedBlockHeight;
+                int end = Math.Min(LastScannedBlockHeight + batchSize - 1, (int)tipHeight);
+
+                var blockHashes = await FetchBlockHashesAsnyc(start, end, stoppingToken);
+
+                var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
+
+                foreach (var block in blocks)
+                {
+                    await ProcessBlockAsync(block).ConfigureAwait(false);
+                }
+
+                IncreaseLastScannedBlockHeight(blocks.Count);
+            }
         }
 
         private async Task<List<uint256>> FetchBlockHashesAsnyc(int startingHeight, int endHeight, CancellationToken cancellationToken)
@@ -95,6 +103,14 @@ namespace LookUp.Core.Services
             // TODO: Save to DB if there is message
 
             Console.WriteLine(message);
+        }
+
+        private void IncreaseLastScannedBlockHeight(int processedBlockCount)
+        {
+            lock(LastScannedBlockHeightLock)
+            {
+                LastScannedBlockHeight += processedBlockCount;
+            }
         }
     }
 }
