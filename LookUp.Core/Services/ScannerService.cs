@@ -24,38 +24,35 @@ namespace LookUp.Core.Services
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             ulong tipHeight = blockchainInfo.Blocks;
 
-            while ((int)tipHeight > LastScannedBlockHeight) 
+
+            blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken).ConfigureAwait(false);
+            tipHeight = blockchainInfo.Blocks;
+
+            var blockHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
+
+            var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
+
+            foreach (var block in blocks)
             {
-                blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken).ConfigureAwait(false);
-                tipHeight = blockchainInfo.Blocks;
-
-                int start = LastScannedBlockHeight;
-                int end = Math.Min(LastScannedBlockHeight + batchSize - 1, (int)tipHeight);
-
-                var blockHashes = await FetchBlockHashesAsnyc(start, end, stoppingToken);
-
-                var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
-
-                foreach (var block in blocks)
-                {
-                    await ProcessBlockAsync(block).ConfigureAwait(false);
-                }
-
-                IncreaseLastScannedBlockHeight(blocks.Count);
+                await ProcessBlockAsync(block).ConfigureAwait(false);
             }
+
+            IncreaseLastScannedBlockHeight(blocks.Count);            
+
+            Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
         }
 
-        private async Task<List<uint256>> FetchBlockHashesAsnyc(int startingHeight, int endHeight, CancellationToken cancellationToken)
+        private async Task<List<uint256>> FetchBlockHashesAsnyc(int blockHeight, CancellationToken cancellationToken)
         {
             var batchClient = RpcClient.PrepareBatch();
 
-            var tasks = Enumerable.Range(startingHeight, endHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
+            var tasks = Enumerable.Range(0, blockHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
 
             await batchClient.SendBatchAsync().ConfigureAwait(false);
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            return [.. results];
+            return results.ToList();
         }
 
         private async Task<List<VerboseBlockInfo>> FetchBlocksAsync(List<uint256> blockHashes, CancellationToken cancellationToken)
@@ -68,7 +65,7 @@ namespace LookUp.Core.Services
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            return [.. results];
+            return results.ToList();
         }
 
         private async Task ProcessBlockAsync(VerboseBlockInfo block)
@@ -101,8 +98,6 @@ namespace LookUp.Core.Services
             string message = Encoding.UTF8.GetString(bytes);
 
             // TODO: Save to DB if there is message
-
-            Console.WriteLine(message);
         }
 
         private void IncreaseLastScannedBlockHeight(int processedBlockCount)
