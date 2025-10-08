@@ -34,7 +34,7 @@ namespace LookUp.Core.Services
 
                 foreach (var block in blocks)
                 {
-                    await ProcessBlockAsync(block).ConfigureAwait(false);
+                    await ProcessBlockAsync(block);
                 }
 
                 IncreaseLastScannedBlockHeight(blocks.Count);
@@ -48,9 +48,9 @@ namespace LookUp.Core.Services
 
             var tasks = Enumerable.Range(0, blockHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
 
-            await batchClient.SendBatchAsync(cancellationToken).ConfigureAwait(false);
+            await batchClient.SendBatchAsync(cancellationToken);
 
-            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            var results = await Task.WhenAll(tasks);
 
             return results.ToList();
         }
