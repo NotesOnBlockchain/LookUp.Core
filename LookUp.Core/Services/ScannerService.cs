@@ -48,7 +48,7 @@ namespace LookUp.Core.Services
 
             var tasks = Enumerable.Range(0, blockHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
 
-            await batchClient.SendBatchAsync().ConfigureAwait(false);
+            await batchClient.SendBatchAsync(cancellationToken).ConfigureAwait(false);
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -61,7 +61,7 @@ namespace LookUp.Core.Services
 
             var tasks = blockHashes.Select(x => RpcClient.GetVerboseBlockAsync(x, cancellationToken));
 
-            await batchClient.SendBatchAsync();
+            await batchClient.SendBatchAsync(cancellationToken);
 
             var results = await Task.WhenAll(tasks);
 
