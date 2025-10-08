@@ -24,22 +24,22 @@ namespace LookUp.Core.Services
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             ulong tipHeight = blockchainInfo.Blocks;
 
-
-            blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken).ConfigureAwait(false);
-            tipHeight = blockchainInfo.Blocks;
-
             var blockHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
 
-            var blocks = await FetchBlocksAsync(blockHashes, stoppingToken).ConfigureAwait(false);
+            var batches = blockHashes.Chunk(batchSize);
 
-            foreach (var block in blocks)
+            foreach (var batch in batches) 
             {
-                await ProcessBlockAsync(block).ConfigureAwait(false);
-            }
+                var blocks = await FetchBlocksAsync(batch.ToList(), stoppingToken);
 
-            IncreaseLastScannedBlockHeight(blocks.Count);            
+                foreach (var block in blocks)
+                {
+                    await ProcessBlockAsync(block).ConfigureAwait(false);
+                }
 
-            Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
+                IncreaseLastScannedBlockHeight(blocks.Count);
+                Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
+            } 
         }
 
         private async Task<List<uint256>> FetchBlockHashesAsnyc(int blockHeight, CancellationToken cancellationToken)
@@ -61,9 +61,9 @@ namespace LookUp.Core.Services
 
             var tasks = blockHashes.Select(x => RpcClient.GetVerboseBlockAsync(x, cancellationToken));
 
-            await batchClient.SendBatchAsync().ConfigureAwait(false);
+            await batchClient.SendBatchAsync();
 
-            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            var results = await Task.WhenAll(tasks);
 
             return results.ToList();
         }
@@ -98,6 +98,7 @@ namespace LookUp.Core.Services
             string message = Encoding.UTF8.GetString(bytes);
 
             // TODO: Save to DB if there is message
+            Console.WriteLine($"Processed TX: ID: {tx.Id}");
         }
 
         private void IncreaseLastScannedBlockHeight(int processedBlockCount)
