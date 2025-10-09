@@ -1,9 +1,6 @@
 ﻿using LookUp.Core.Rpc.Models;
 using NBitcoin;
 using NBitcoin.RPC;
-using Newtonsoft.Json.Linq;
-using System.Globalization;
-using System.Linq;
 
 namespace LookUp.Core.Rpc
 {
@@ -68,12 +65,6 @@ namespace LookUp.Core.Rpc
         public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(uint256 blockId, CancellationToken cancellationToken = default)
         {
             var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, blockId, 2).ConfigureAwait(false);
-            return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
-        }
-
-        public virtual async Task<VerboseBlockInfo> GetVerboseBlockAsync(int height,  CancellationToken cancellationToken = default)
-        {
-            var resp = await Rpc.SendCommandAsync(RPCOperations.getblock, cancellationToken, height).ConfigureAwait(false);
             return RpcParser.ParseVerboseBlockResponse(resp.ResultString);
         }
 
