@@ -1,7 +1,6 @@
 ﻿using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
 using NBitcoin;
-using Newtonsoft.Json.Bson;
 using System.Text;
 
 namespace LookUp.Core.Services
@@ -21,6 +20,7 @@ namespace LookUp.Core.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Process past blocks
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             ulong tipHeight = blockchainInfo.Blocks;
 
@@ -30,16 +30,30 @@ namespace LookUp.Core.Services
 
             foreach (var batch in batches) 
             {
-                var blocks = await FetchBlocksAsync(batch.ToList(), stoppingToken);
+                await ProcessBatchOfHashes(batch);
+            }
+            
+            // Wait for new blocks.
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
-                foreach (var block in blocks)
+                blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
+                tipHeight = blockchainInfo.Blocks;
+
+                if ((int)tipHeight > LastScannedBlockHeight)
                 {
-                    await ProcessBlockAsync(block);
-                }
+                    var currentAllHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
+                    var missingHashes = currentAllHashes.Except(blockHashes);
 
-                IncreaseLastScannedBlockHeight(blocks.Count);
-                Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
-            } 
+                    batches = missingHashes.Chunk(batchSize);
+
+                    foreach (var batch in batches)
+                    {
+                        await ProcessBatchOfHashes(batch);
+                    }
+                }
+            }
         }
 
         private async Task<List<uint256>> FetchBlockHashesAsnyc(int blockHeight, CancellationToken cancellationToken)
@@ -66,6 +80,19 @@ namespace LookUp.Core.Services
             var results = await Task.WhenAll(tasks);
 
             return results.ToList();
+        }
+
+        private async Task ProcessBatchOfHashes(uint256[] batch)
+        {
+            var blocks = await FetchBlocksAsync(batch.ToList(), stoppingToken);
+
+            foreach (var block in blocks)
+            {
+                await ProcessBlockAsync(block);
+            }
+
+            IncreaseLastScannedBlockHeight(blocks.Count);
+            Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
         }
 
         private async Task ProcessBlockAsync(VerboseBlockInfo block)
