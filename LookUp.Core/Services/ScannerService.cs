@@ -41,7 +41,7 @@ namespace LookUp.Core.Services
 
                     foreach (var batch in batches)
                     {
-                        await ProcessBatchOfHashes(batch);
+                        await ProcessBatchOfHashes(batch, stoppingToken);
                     }
 
                     previousHashes = currentAllHashes;
@@ -77,9 +77,9 @@ namespace LookUp.Core.Services
             return results.ToList();
         }
 
-        private async Task ProcessBatchOfHashes(uint256[] batch)
+        private async Task ProcessBatchOfHashes(uint256[] batch, CancellationToken cancellationToken)
         {
-            var blocks = await FetchBlocksAsync(batch.ToList(), stoppingToken);
+            var blocks = await FetchBlocksAsync(batch.ToList(), cancellationToken);
 
             foreach (var block in blocks)
             {
