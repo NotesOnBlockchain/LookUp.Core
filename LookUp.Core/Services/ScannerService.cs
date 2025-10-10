@@ -20,39 +20,34 @@ namespace LookUp.Core.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Process past blocks
-            var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
-            ulong tipHeight = blockchainInfo.Blocks;
+            var previousHashes = new List<uint256>();
 
-            var blockHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
-
-            var batches = blockHashes.Chunk(batchSize);
-
-            foreach (var batch in batches) 
-            {
-                await ProcessBatchOfHashes(batch);
-            }
-            
-            // Wait for new blocks.
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-
-                blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
-                tipHeight = blockchainInfo.Blocks;
+                var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
+                var tipHeight = blockchainInfo.Blocks;
 
                 if ((int)tipHeight > LastScannedBlockHeight)
                 {
                     var currentAllHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
-                    var missingHashes = currentAllHashes.Except(blockHashes);
+                    var missingHashes = currentAllHashes.Except(previousHashes);
 
-                    batches = missingHashes.Chunk(batchSize);
+                    if (!missingHashes.Any())
+                    {
+                        continue;
+                    }
+
+                    var batches = missingHashes.Chunk(batchSize);
 
                     foreach (var batch in batches)
                     {
                         await ProcessBatchOfHashes(batch);
                     }
+
+                    previousHashes = currentAllHashes;
                 }
+
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 
