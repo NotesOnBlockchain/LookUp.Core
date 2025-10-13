@@ -116,6 +116,14 @@ namespace LookUp.Core.Services
                 .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
                 .ToArray();
 
+            // Check if the bytes fall between the first printable ASCII char and the last printable char.
+            bool isLikelyText = bytes.All(b => b >= 0x20 && b <= 0x7E);
+
+            if (!isLikelyText) 
+            {
+                return;
+            }
+
             // Decode to string
             string message = Encoding.UTF8.GetString(bytes);
 
