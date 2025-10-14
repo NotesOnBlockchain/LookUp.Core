@@ -54,6 +54,7 @@ namespace LookUp.Core.Services
                     }
 
                     previousHashes = currentAllHashes;
+                    SaveLastScannedBlockHeight();
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
@@ -145,6 +146,14 @@ namespace LookUp.Core.Services
             lock(LastScannedBlockHeightLock)
             {
                 LastScannedBlockHeight += processedBlockCount;
+            }
+        }
+
+        private void SaveLastScannedBlockHeight()
+        {
+            lock (LastScannedBlockHeightLock) 
+            {
+                File.WriteAllText(LastScannedBlockHeightFilePath, LastScannedBlockHeight.ToString());
             }
         }
 
