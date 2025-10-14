@@ -8,15 +8,24 @@ namespace LookUp.Core.Services
     public class ScannerService : BackgroundService
     {
         private int batchSize = 20;
-        public ScannerService(IRPCClient rpcClient)
+        public ScannerService(IRPCClient rpcClient, string lastScannedBlockHeightFilePath)
         {
             RpcClient = rpcClient;
+            LastScannedBlockHeightFilePath = lastScannedBlockHeightFilePath;
+
+        }
+        public ScannerService(IRPCClient rpcClient, int lastScannedBlockHeight, string lastScannedBlockHeightFilePath)
+        {
+            RpcClient = rpcClient;
+            LastScannedBlockHeight = lastScannedBlockHeight;
+            LastScannedBlockHeightFilePath = lastScannedBlockHeightFilePath;
         }
 
         public IRPCClient RpcClient { get; }
 
         private int LastScannedBlockHeight { get; set; } = 0;
         private object LastScannedBlockHeightLock { get; set; } = new object();
+        private string LastScannedBlockHeightFilePath { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -136,6 +145,25 @@ namespace LookUp.Core.Services
             lock(LastScannedBlockHeightLock)
             {
                 LastScannedBlockHeight += processedBlockCount;
+            }
+        }
+
+        public static ScannerService LoadWithConfig(string filePath, IRPCClient rpcClient)
+        {
+            try
+            {
+                using var lastScannedBlockFile = File.OpenRead(filePath);
+                var decoder = Serialization.JsonDecoder.FromStream(Serialization.Decode.Int64);
+                var lastScannedBlockHeightResult = decoder(lastScannedBlockFile);
+
+                long lastScannedBlockHeight = lastScannedBlockHeightResult.Match(value => value, error => throw new InvalidOperationException(error));
+
+                return new ScannerService(rpcClient, (int)lastScannedBlockHeight, filePath);
+            }
+            catch (Exception) 
+            {
+                File.WriteAllText(filePath, "0");
+                return new ScannerService(rpcClient, filePath);
             }
         }
     }

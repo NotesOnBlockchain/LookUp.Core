@@ -32,7 +32,8 @@ public class Startup
         MyRPCClient myRPCClient = new MyRPCClient(rpcClient);
         services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
 
-        var scannerService = new ScannerService(myRPCClient);
+        string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
+        var scannerService = ScannerService.LoadWithConfig(lastScannedBlockHeightFilePath, myRPCClient);
         services.AddHostedService<ScannerService>();
         
 
