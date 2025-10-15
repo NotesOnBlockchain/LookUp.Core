@@ -22,29 +22,9 @@ namespace LookUp.Core.Rpc
             return await Rpc.GetBestBlockHashAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public virtual async Task<Block> GetBlockAsync(uint256 blockHash, CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetBlockAsync(blockHash, cancellationToken).ConfigureAwait(false);
-        }
-
-        public virtual async Task<Block> GetBlockAsync(uint blockHeight, CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetBlockAsync(blockHeight, cancellationToken).ConfigureAwait(false);
-        }
-
-        public virtual async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash, CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetBlockHeaderAsync(blockHash, cancellationToken).ConfigureAwait(false);
-        }
-
         public virtual async Task<BlockchainInfo> GetBlockchainInfoAsync(CancellationToken cancellationToken = default)
         {
             return await Rpc.GetBlockchainInfoAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        public virtual async Task<GetTxOutResponse?> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetTxOutAsync(txid, index, includeMempool, cancellationToken).ConfigureAwait(false);
         }
 
         public virtual async Task StopAsync(CancellationToken cancellationToken = default)
