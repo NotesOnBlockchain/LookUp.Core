@@ -4,9 +4,9 @@ using NBitcoin.RPC;
 
 namespace LookUp.Core.Rpc
 {
-    public class MyRPCClient : IRPCClient
+    public class MinimalRPCClient : IRPCClient
     {
-        public MyRPCClient(RPCClient rpc)
+        public MinimalRPCClient(RPCClient rpc)
         {
             Rpc = rpc;
         }
@@ -34,7 +34,7 @@ namespace LookUp.Core.Rpc
 
         public virtual IRPCClient PrepareBatch()
         {
-            return new MyRPCClient(Rpc.PrepareBatch());
+            return new MinimalRPCClient(Rpc.PrepareBatch());
         }
 
         public async Task SendBatchAsync(CancellationToken cancellationToken = default)

@@ -29,7 +29,7 @@ public class Startup
             hostOrUri: host,
             network: config.Network);
 
-        MyRPCClient myRPCClient = new MyRPCClient(rpcClient);
+        MinimalRPCClient myRPCClient = new MinimalRPCClient(rpcClient);
         services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
 
         string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
