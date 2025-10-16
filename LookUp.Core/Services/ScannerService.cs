@@ -7,7 +7,7 @@ namespace LookUp.Core.Services
 {
     public class ScannerService : BackgroundService
     {
-        private int batchSize = 20;
+        private readonly int batchSize = 20;
         public ScannerService(IRPCClient rpcClient, string lastScannedBlockHeightFilePath)
         {
             RpcClient = rpcClient;
