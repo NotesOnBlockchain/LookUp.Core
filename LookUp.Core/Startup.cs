@@ -34,7 +34,7 @@ public class Startup
 
         string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
         var scannerService = ScannerService.LoadWithConfig(lastScannedBlockHeightFilePath, myRPCClient);
-        services.AddHostedService<ScannerService>();
+        services.AddHostedService<ScannerService>(services => scannerService);
         
 
         services.AddMemoryCache();
