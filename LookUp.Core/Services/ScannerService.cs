@@ -1,4 +1,5 @@
-﻿using LookUp.Core.Rpc;
+﻿using LookUp.Core.Models;
+using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
 using NBitcoin;
 using System.Text;
@@ -8,24 +9,16 @@ namespace LookUp.Core.Services
     public class ScannerService : BackgroundService
     {
         private readonly int batchSize = 20;
-        public ScannerService(IRPCClient rpcClient, string lastScannedBlockHeightFilePath)
-        {
-            RpcClient = rpcClient;
-            LastScannedBlockHeightFilePath = lastScannedBlockHeightFilePath;
 
-        }
-        public ScannerService(IRPCClient rpcClient, int lastScannedBlockHeight, string lastScannedBlockHeightFilePath)
+        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeight lastScanned)
         {
             RpcClient = rpcClient;
-            LastScannedBlockHeight = lastScannedBlockHeight;
-            LastScannedBlockHeightFilePath = lastScannedBlockHeightFilePath;
+            LastScannedBlockHeight = lastScanned;
+           
         }
 
         public IRPCClient RpcClient { get; }
-
-        private int LastScannedBlockHeight { get; set; } = 0;
-        private object LastScannedBlockHeightLock { get; set; } = new object();
-        private string LastScannedBlockHeightFilePath { get; }
+        public LastScannedBlockHeight LastScannedBlockHeight { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -36,7 +29,7 @@ namespace LookUp.Core.Services
                 var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
                 var tipHeight = blockchainInfo.Blocks;
 
-                if ((int)tipHeight > LastScannedBlockHeight)
+                if ((int)tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
                     var currentAllHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
                     var missingHashes = currentAllHashes.Except(previousHashes);
@@ -54,7 +47,7 @@ namespace LookUp.Core.Services
                     }
 
                     previousHashes = currentAllHashes;
-                    SaveLastScannedBlockHeight();
+                    LastScannedBlockHeight.SaveLastScannedBlockHeight();
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
@@ -96,7 +89,7 @@ namespace LookUp.Core.Services
                 await ProcessBlockAsync(block);
             }
 
-            IncreaseLastScannedBlockHeight(blocks.Count);
+            LastScannedBlockHeight.IncreaseLastScannedBlockHeight(blocks.Count);
             Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
         }
 
@@ -139,41 +132,6 @@ namespace LookUp.Core.Services
 
             // TODO: Save to DB if there is message
             Console.WriteLine($"Processed TX: ID: {tx.Id}");
-        }
-
-        private void IncreaseLastScannedBlockHeight(int processedBlockCount)
-        {
-            lock(LastScannedBlockHeightLock)
-            {
-                LastScannedBlockHeight += processedBlockCount;
-            }
-        }
-
-        private void SaveLastScannedBlockHeight()
-        {
-            lock (LastScannedBlockHeightLock) 
-            {
-                File.WriteAllText(LastScannedBlockHeightFilePath, LastScannedBlockHeight.ToString());
-            }
-        }
-
-        public static ScannerService LoadWithConfig(string filePath, IRPCClient rpcClient)
-        {
-            try
-            {
-                using var lastScannedBlockFile = File.OpenRead(filePath);
-                var decoder = Serialization.JsonDecoder.FromStream(Serialization.Decode.Int64);
-                var lastScannedBlockHeightResult = decoder(lastScannedBlockFile);
-
-                long lastScannedBlockHeight = lastScannedBlockHeightResult.Match(value => value, error => throw new InvalidOperationException(error));
-
-                return new ScannerService(rpcClient, (int)lastScannedBlockHeight, filePath);
-            }
-            catch (Exception) 
-            {
-                File.WriteAllText(filePath, "0");
-                return new ScannerService(rpcClient, filePath);
-            }
         }
     }
 }
