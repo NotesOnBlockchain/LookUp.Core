@@ -1,4 +1,5 @@
-﻿using LookUp.Core.Models;
+﻿using LookUp.Core.DataBase;
+using LookUp.Core.Models;
 using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
 using NBitcoin;
@@ -10,15 +11,18 @@ namespace LookUp.Core.Services
     {
         private readonly int batchSize = 20;
 
-        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeight lastScanned)
+        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeight lastScanned, ScanChannel scanChannel)
         {
             RpcClient = rpcClient;
             LastScannedBlockHeight = lastScanned;
+            ScanChannel = scanChannel;
            
         }
 
         public IRPCClient RpcClient { get; }
         public LastScannedBlockHeight LastScannedBlockHeight { get; }
+
+        public ScanChannel ScanChannel { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -104,7 +108,7 @@ namespace LookUp.Core.Services
         {
             var opReturnOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey.ExtractScriptCode(-1).ToString().Contains("OP_RETURN"));
 
-            if (opReturnOutput is null) 
+            if (opReturnOutput is null)
             {
                 return;
             }
@@ -122,7 +126,7 @@ namespace LookUp.Core.Services
             // Check if the bytes fall between the first printable ASCII char and the last printable char.
             bool isLikelyText = bytes.All(b => b >= 0x20 && b <= 0x7E);
 
-            if (!isLikelyText) 
+            if (!isLikelyText)
             {
                 return;
             }
@@ -132,6 +136,7 @@ namespace LookUp.Core.Services
 
             // TODO: Save to DB if there is message
             Console.WriteLine($"Processed TX: ID: {tx.Id}");
+            ScanChannel.ChannelToDB.Writer.TryWrite(new MessageModel(tx.Id, message, hex, tx.BlockInfo.BlockHash, tx.BlockInfo.BlockIndex, tx.BlockInfo.BlockTime));
         }
     }
 }
