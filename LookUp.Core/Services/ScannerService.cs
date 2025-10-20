@@ -136,7 +136,7 @@ namespace LookUp.Core.Services
 
             // TODO: Save to DB if there is message
             Console.WriteLine($"Processed TX: ID: {tx.Id}");
-            ScanChannel.ChannelToDB.Writer.TryWrite(new MessageModel(tx.Id, message, hex, tx.BlockInfo.BlockHash, tx.BlockInfo.BlockIndex, tx.BlockInfo.BlockTime));
+            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(tx.Id, message, hex, tx.BlockInfo.BlockHash, tx.BlockInfo.BlockIndex, tx.BlockInfo.BlockTime));
         }
     }
 }

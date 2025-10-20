@@ -5,11 +5,11 @@ namespace LookUp.Core.DataBase
 {
     public class ScanChannel
     {
-        public Channel<MessageModel> ChannelToDB { get; }
+        public Channel<MessageModel> MessageChannel { get; }
 
         public ScanChannel()
         {
-            ChannelToDB = Channel.CreateUnbounded<MessageModel>(
+            MessageChannel = Channel.CreateUnbounded<MessageModel>(
                 new UnboundedChannelOptions
                 {
                     SingleReader = false,
