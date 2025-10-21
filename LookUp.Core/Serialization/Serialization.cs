@@ -306,7 +306,8 @@ namespace LookUp.Core.Serialization
                     get.Required("BitcoinRpcConnectionString", Decode.String),
                     get.Required("MainNetBitcoinCoreRpcEndPoint", Decode.String),
                     get.Required("TestNetBitcoinCoreRpcEndPoint", Decode.String),
-                    get.Required("RegTestBitcoinCoreRpcEndPoint", Decode.String)
+                    get.Required("RegTestBitcoinCoreRpcEndPoint", Decode.String),
+                    get.Required("SQLConnectionString", Decode.String)
                 ));
         }
     }

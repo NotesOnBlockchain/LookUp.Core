@@ -17,7 +17,8 @@ namespace LookUp.Core.Config
             string bitcoinRpcConnectionString,
             string mainNetBitcoinRpcUri,
             string testNetBitcoinRpcUri,
-            string regTestBitcoinRpcUri
+            string regTestBitcoinRpcUri,
+            string sqlconnectionstring
 
             ) : base(filePath)
             {
@@ -27,6 +28,7 @@ namespace LookUp.Core.Config
                 MainNetBitcoinRpcUri = mainNetBitcoinRpcUri;
                 TestNetBitcoinRpcUri = testNetBitcoinRpcUri;
                 RegTestBitcoinRpcUri = regTestBitcoinRpcUri;
+                SQLConnectionString = sqlconnectionstring;
         }
 
         public Network Network { get; set; } = Network.Main;
@@ -38,6 +40,8 @@ namespace LookUp.Core.Config
         public string RegTestBitcoinRpcUri { get; set; } = Constants.Constants.DefaultRegTestBitcoinRpcUri;
 
         public string BitcoinRpcConnectionString { get; set; } = "user:password";
+
+        public string SQLConnectionString { get; set; } = "Server=myserver;Port=myport;Database=mydatabase;User Id=User;Password=Password";
 
         public string GetBitcoinRpcUri() =>
             Network switch
