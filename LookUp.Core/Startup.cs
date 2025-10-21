@@ -5,6 +5,7 @@ using LookUp.Core.Helpers;
 using LookUp.Core.Models;
 using LookUp.Core.Rpc;
 using LookUp.Core.Services;
+using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
 using System;
 
@@ -44,6 +45,8 @@ public class Startup
 
         var dataBaseWiter = new DataBaseWriterService(scanChannel);
         services.AddHostedService<DataBaseWriterService>(services => dataBaseWiter);
+
+        services.AddDbContext<MessageDatabaseContext>(options => options.UseNpgsql(config.SQLConnectionString));
 
 
         services.AddMemoryCache();
