@@ -9,5 +9,11 @@ namespace LookUp.Core.DataBase
         {
         }
         public DbSet<MessageModel> Messages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+        }
     }
 }
