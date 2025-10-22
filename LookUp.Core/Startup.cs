@@ -48,6 +48,7 @@ public class Startup
 
         services.AddDbContext<MessageDatabaseContext>(options => options.UseNpgsql(config.SQLConnectionString));
 
+        services.AddSingleton<MessageRepository>(services => new MessageRepository(services.GetService<MessageDatabaseContext>() ?? throw new NullReferenceException()));
 
         services.AddMemoryCache();
         services.AddMvc();
