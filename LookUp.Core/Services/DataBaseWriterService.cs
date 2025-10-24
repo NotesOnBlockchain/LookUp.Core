@@ -4,23 +4,21 @@ namespace LookUp.Core.Services
 {
     public class DataBaseWriterService : BackgroundService
     {
-        public DataBaseWriterService(ScanChannel scanChannel)
+        public DataBaseWriterService(ScanChannel scanChannel, MessageRepository messageRepository)
         {
-             ScanChannel = scanChannel;
+            ScanChannel = scanChannel;
+            MessageRepo = messageRepository;
         }
 
         private ScanChannel ScanChannel { get; }
+        private MessageRepository MessageRepo { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await foreach (var message in ScanChannel.MessageChannel.Reader.ReadAllAsync(stoppingToken))
             {
-                //Save to DB
-
-                Console.WriteLine($"FROM DBWRITER SERVICE: Message TxID: {message.TransactionID}, Message BlockIndex: {message.BlockIndex}");
+                MessageRepo.AddMessage(message);
             }
-
-            Console.WriteLine("DBWRITER SERVICE LOOP EXITED.");
         }
     }
 }

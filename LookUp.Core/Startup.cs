@@ -43,12 +43,12 @@ public class Startup
         var scannerService = new ScannerService(myRPCClient, lastScannedBlockHeight, scanChannel);
         services.AddHostedService<ScannerService>(services => scannerService);
 
-        var dataBaseWiter = new DataBaseWriterService(scanChannel);
-        services.AddHostedService<DataBaseWriterService>(services => dataBaseWiter);
-
         services.AddDbContext<MessageDatabaseContext>(options => options.UseNpgsql(config.SQLConnectionString));
-
         services.AddSingleton<MessageRepository>(services => new MessageRepository(services.GetService<MessageDatabaseContext>() ?? throw new NullReferenceException()));
+
+        services.AddHostedService<DataBaseWriterService>(services => new DataBaseWriterService(scanChannel, services.GetService<MessageRepository>() ?? throw new NullReferenceException()));
+
+        
 
         services.AddMemoryCache();
         services.AddMvc();

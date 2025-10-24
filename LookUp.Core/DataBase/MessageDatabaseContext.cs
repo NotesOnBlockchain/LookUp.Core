@@ -3,11 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LookUp.Core.DataBase
 {
-    public class MessageDatabaseContext : DbContext
+    public class MessageDatabaseContext(DbContextOptions options) : DbContext(options)
     {
-        public MessageDatabaseContext(DbContextOptions options) : base(options) 
-        {
-        }
         public DbSet<MessageModel> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
