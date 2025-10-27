@@ -1,6 +1,16 @@
-﻿using NBitcoin;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LookUp.Core.Models
 {
-    public record MessageModel(uint256 TransactionID, string Message, string Hex, uint256 BlockHash, uint BlockIndex, DateTimeOffset BlockMinedAt);
+    public class MessageModel(string transactionID, string message, string hex, string blockHash, uint blockIndex, DateTimeOffset blockMinedAt)
+    {
+        [Key]
+        public Guid ID { get; set; } = new Guid();
+        public string TransactionID { get; set; } = transactionID;
+        public string Message { get; set; } = message;
+        public string Hex { get; set; } = hex;
+        public string BlockHash { get; set; } = blockHash;
+        public uint BlockIndex { get; set; } = blockIndex;
+        public DateTimeOffset BlockMinedAt { get; set; } = blockMinedAt;
+    }
 }
