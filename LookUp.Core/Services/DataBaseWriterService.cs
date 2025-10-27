@@ -4,20 +4,24 @@ namespace LookUp.Core.Services
 {
     public class DataBaseWriterService : BackgroundService
     {
-        public DataBaseWriterService(ScanChannel scanChannel, MessageRepository messageRepository)
+        public DataBaseWriterService(ScanChannel scanChannel, IServiceScopeFactory scopeFactory)
         {
             ScanChannel = scanChannel;
-            MessageRepo = messageRepository;
+            ScopeFactory = scopeFactory;
         }
 
         private ScanChannel ScanChannel { get; }
         private MessageRepository MessageRepo { get; }
+        public IServiceScopeFactory ScopeFactory { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await foreach (var message in ScanChannel.MessageChannel.Reader.ReadAllAsync(stoppingToken))
             {
-                MessageRepo.AddMessage(message);
+                using var scope = ScopeFactory.CreateScope();
+                var messageRepo = scope.ServiceProvider.GetRequiredService<MessageRepository>();
+
+                messageRepo.AddMessage(message);
             }
         }
     }

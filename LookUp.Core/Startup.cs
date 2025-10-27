@@ -37,18 +37,19 @@ public class Startup
 
         string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
         var lastScannedBlockHeight = LastScannedBlockHeight.LoadFromFile(lastScannedBlockHeightFilePath);
+        services.AddSingleton<LastScannedBlockHeight>(services => lastScannedBlockHeight);
 
         var scanChannel = new ScanChannel();
+        services.AddSingleton(scanChannel);
 
-        var scannerService = new ScannerService(myRPCClient, lastScannedBlockHeight, scanChannel);
-        services.AddHostedService<ScannerService>(services => scannerService);
+        services.AddDbContextPool<MessageDatabaseContext>(options =>
+            options.UseNpgsql(config.SQLConnectionString));
 
-        services.AddDbContext<MessageDatabaseContext>(options => options.UseNpgsql(config.SQLConnectionString));
-        services.AddSingleton<MessageRepository>(services => new MessageRepository(services.GetService<MessageDatabaseContext>() ?? throw new NullReferenceException()));
+        services.AddScoped<MessageRepository>();
 
-        services.AddHostedService<DataBaseWriterService>(services => new DataBaseWriterService(scanChannel, services.GetService<MessageRepository>() ?? throw new NullReferenceException()));
+        services.AddHostedService<ScannerService>();
+        services.AddHostedService<DataBaseWriterService>();
 
-        
 
         services.AddMemoryCache();
         services.AddMvc();
