@@ -11,7 +11,6 @@ namespace LookUp.Core.Services
         }
 
         private ScanChannel ScanChannel { get; }
-        private MessageRepository MessageRepo { get; }
         public IServiceScopeFactory ScopeFactory { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
