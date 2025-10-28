@@ -43,7 +43,12 @@ namespace LookUp.Core.DataBase
         {
             lock (_dBContextLock) 
             {
-                _dBContext.Database.EnsureDeleted();
+                var messages = GetMessages();
+                foreach (var message in messages) 
+                {
+                    _dBContext.Messages.Remove(message);
+                }
+
                 _dBContext.SaveChanges();
             }
         }
