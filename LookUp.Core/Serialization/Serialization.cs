@@ -1,4 +1,5 @@
 ﻿using LookUp.Core.Config;
+using LookUp.Core.Models;
 using LookUp.Core.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NBitcoin;
@@ -88,6 +89,16 @@ namespace LookUp.Core.Serialization
                 ("TestNetBitcoinRpcUri", String(cfg.TestNetBitcoinRpcUri)),
                 ("RegTestBitcoinRpcUri", String(cfg.RegTestBitcoinRpcUri)),
                 ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString))
+            ]);
+
+        public static JsonNode Message(MessageModel message) =>
+            Object([
+                ("ID", String(message.ID.ToString())),
+                ("TransactionID", String(message.TransactionID)),
+                ("Message", String(message.Message)),
+                ("Hex", String(message.Hex)),
+                ("BlockHash", String(message.BlockHash)),
+                ("BlockMinedAt", String(message.BlockMinedAt.UtcDateTime.ToString()))
             ]);
 
         public static class ConfigEncode
