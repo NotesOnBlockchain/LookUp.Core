@@ -94,7 +94,6 @@ namespace LookUp.Core.Services
             }
 
             LastScannedBlockHeight.IncreaseLastScannedBlockHeight(blocks.Count);
-            Console.WriteLine($"Scan end: LastScannedBlockHeight: {LastScannedBlockHeight}");
         }
 
         private async Task ProcessBlockAsync(VerboseBlockInfo block)
@@ -133,10 +132,7 @@ namespace LookUp.Core.Services
 
             // Decode to string
             string message = Encoding.UTF8.GetString(bytes);
-
-            // TODO: Save to DB if there is message
-            Console.WriteLine($"Processed TX: ID: {tx.Id}");
-            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(tx.Id, message, hex, tx.BlockInfo.BlockHash, tx.BlockInfo.BlockIndex, tx.BlockInfo.BlockTime));
+            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
         }
     }
 }
