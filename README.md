@@ -6,25 +6,11 @@
 
 ## Requirements
 
-- [Git] (https://git-scm.com/downloads)
+- [Git](https://git-scm.com/downloads)
 - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download)
 - [PostgreSQL 15+](https://www.postgresql.org/download/)
 - [Bitcoin Knots](https://bitcoinknots.org/)  
 
-## Clone LookUp
-
-```sh
-git clone --depth=1 --single-branch --branch=master https://github.com/NotesOnBlockchain/LookUp.Core.git
-
-```
-
-## Build and Run
-```sh
-cd \LookUp.Core\LookUp.Core
-dotnet build
-dotnet run
-
-```
 ## Setup
 
 1. **Clone the repository:**
@@ -52,12 +38,12 @@ Update {appdata}/LookUp/Backend/Config.json:
 }
 ```
 
-4. Apply database migrations:
+4. Create your Database then apply database migrations:
 
 ```sh
 dotnet ef database update
 ```
-5. Run the server:
+5. Launch Bitcoin Knots then start the server:
 
 ```sh
 dotnet run
