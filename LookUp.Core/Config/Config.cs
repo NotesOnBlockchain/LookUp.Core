@@ -1,6 +1,4 @@
-﻿using LookUp.Core.Constants;
-using Microsoft.Extensions.Logging;
-using NBitcoin;
+﻿using NBitcoin;
 using static LookUp.Core.Serialization.Encode;
 
 namespace LookUp.Core.Config

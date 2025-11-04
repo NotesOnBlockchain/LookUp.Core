@@ -1,7 +1,4 @@
-﻿using LookUp.Core.Rpc;
-using LookUp.Core.Services;
-
-namespace LookUp.Core.Models
+﻿namespace LookUp.Core.Models
 {
     public class LastScannedBlockHeight
     {

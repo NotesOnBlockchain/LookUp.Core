@@ -1,5 +1,4 @@
 ﻿using LookUp.Core.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LookUp.Core.DataBase
 {

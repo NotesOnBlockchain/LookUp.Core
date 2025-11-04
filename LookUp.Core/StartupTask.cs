@@ -1,7 +1,6 @@
 ﻿using LookUp.Core.DataBase;
 using LookUp.Core.Rpc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NBitcoin;
 using System.Security.Authentication;
 

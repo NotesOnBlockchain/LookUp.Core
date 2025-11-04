@@ -7,7 +7,6 @@ using LookUp.Core.Rpc;
 using LookUp.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
-using System;
 
 public class Startup
 {

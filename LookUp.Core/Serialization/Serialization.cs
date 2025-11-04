@@ -1,13 +1,9 @@
-﻿using LookUp.Core.Config;
-using LookUp.Core.Models;
+﻿using LookUp.Core.Models;
 using LookUp.Core.Serialization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using NBitcoin;
 using NBitcoin.DataEncoders;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;

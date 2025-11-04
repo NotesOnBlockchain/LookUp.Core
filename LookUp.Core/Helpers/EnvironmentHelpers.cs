@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 
 namespace LookUp.Core.Helpers
@@ -9,7 +8,6 @@ namespace LookUp.Core.Helpers
         // appName, dataDir
         private static ConcurrentDictionary<string, string> DataDirDict { get; } = new ConcurrentDictionary<string, string>();
 
-        // Do not change the output of this function. Backwards compatibility depends on it.
         public static string GetDataDir(string appName)
         {
             if (DataDirDict.TryGetValue(appName, out string? dataDir))
