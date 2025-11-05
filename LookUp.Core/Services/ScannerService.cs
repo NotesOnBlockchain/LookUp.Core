@@ -1,17 +1,18 @@
-﻿using LookUp.Core.DataBase;
-using LookUp.Core.Models;
-using LookUp.Core.Rpc;
+﻿using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
+using LookUp.Models;
+using LookUp.Scanner.DataBase;
+using LookUp.Scanner.LastScannedBlockHeight;
 using NBitcoin;
 using System.Text;
 
-namespace LookUp.Core.Services
+namespace LookUp.Scanner.Services
 {
     public class ScannerService : BackgroundService
     {
         private readonly int batchSize = 20;
 
-        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeight lastScanned, ScanChannel scanChannel)
+        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeightHolder lastScanned, ScanChannel scanChannel)
         {
             RpcClient = rpcClient;
             LastScannedBlockHeight = lastScanned;
@@ -20,7 +21,7 @@ namespace LookUp.Core.Services
         }
 
         public IRPCClient RpcClient { get; }
-        public LastScannedBlockHeight LastScannedBlockHeight { get; }
+        public LastScannedBlockHeightHolder LastScannedBlockHeight { get; }
 
         public ScanChannel ScanChannel { get; }
 
@@ -124,6 +125,14 @@ namespace LookUp.Core.Services
 
             // Check if the bytes fall between the first printable ASCII char and the last printable char.
             bool isLikelyText = bytes.All(b => b >= 0x20 && b <= 0x7E);
+            
+            /* TEST
+            if (tx.Id == new uint256("b7550363b240637316bb300a425d2299596b50eee1b06c061781ea8eb7fc0724") ||
+                tx.Id == new uint256("0a541c952ca9979cc3e45c721d602eb530919f6f12173e5befeb2a1d7d877f91") ||
+                tx.Id == new uint256("8e9b50e70da2b097661710bb4baa438444b464809e2e37e260af0f5d824c6d99"))
+            {
+                ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(tx.Id.ToString(), "Test Message", hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
+            } */
 
             if (!isLikelyText)
             {

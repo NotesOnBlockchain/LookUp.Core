@@ -1,7 +1,7 @@
-﻿using LookUp.Core.Models;
+﻿using LookUp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LookUp.Core.DataBase
+namespace LookUp.Scanner.DataBase
 {
     public class MessageDatabaseContext(DbContextOptions options) : DbContext(options)
     {

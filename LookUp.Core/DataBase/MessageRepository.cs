@@ -1,6 +1,6 @@
-﻿using LookUp.Core.Models;
+﻿using LookUp.Models;
 
-namespace LookUp.Core.DataBase
+namespace LookUp.Scanner.DataBase
 {
     public class MessageRepository
     {

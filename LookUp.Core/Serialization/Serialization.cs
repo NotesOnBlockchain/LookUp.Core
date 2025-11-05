@@ -1,5 +1,5 @@
-﻿using LookUp.Core.Models;
-using LookUp.Core.Serialization;
+﻿using LookUp.Core.Serialization;
+using LookUp.Models;
 using NBitcoin;
 using NBitcoin.DataEncoders;
 using System.Diagnostics.CodeAnalysis;
@@ -11,7 +11,7 @@ using System.Text.Json.Nodes;
 public delegate JsonNode Encoder<in T>(T value);
 public delegate Result<T, string> Decoder<T>(JsonElement value);
 
-namespace LookUp.Core.Serialization
+namespace LookUp.Scanner.Serialization
 {
     public static class JsonEncoder
     {
@@ -309,12 +309,12 @@ namespace LookUp.Core.Serialization
             public static Decoder<Config.Config> Config(string filePath) =>
                 Object(get => new Config.Config(
                     filePath,
-                    get.Required("Network", Decode.Network),
-                    get.Required("BitcoinRpcConnectionString", Decode.String),
-                    get.Required("MainNetBitcoinCoreRpcEndPoint", Decode.String),
-                    get.Required("TestNetBitcoinCoreRpcEndPoint", Decode.String),
-                    get.Required("RegTestBitcoinCoreRpcEndPoint", Decode.String),
-                    get.Required("SQLConnectionString", Decode.String)
+                    get.Required("Network", Network),
+                    get.Required("BitcoinRpcConnectionString", String),
+                    get.Required("MainNetBitcoinCoreRpcEndPoint", String),
+                    get.Required("TestNetBitcoinCoreRpcEndPoint", String),
+                    get.Required("RegTestBitcoinCoreRpcEndPoint", String),
+                    get.Required("SQLConnectionString", String)
                 ));
         }
     }

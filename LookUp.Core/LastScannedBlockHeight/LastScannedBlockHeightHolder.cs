@@ -1,8 +1,8 @@
 ﻿namespace LookUp.Scanner.LastScannedBlockHeight
 {
-    public class LastScannedBlockHeight
+    public class LastScannedBlockHeightHolder
     {
-        public LastScannedBlockHeight(int lastScannedBlockHeight, string lastScannedBlockHeightFilePath)
+        public LastScannedBlockHeightHolder(int lastScannedBlockHeight, string lastScannedBlockHeightFilePath)
         {
             BlockHeight = lastScannedBlockHeight;
             LastScannedBlockHeightFilePath = lastScannedBlockHeightFilePath;
@@ -29,7 +29,7 @@
             }
         }
 
-        public static LastScannedBlockHeight LoadFromFile(string filePath)
+        public static LastScannedBlockHeightHolder LoadFromFile(string filePath)
         {
             try
             {
@@ -39,12 +39,12 @@
 
                 long lastScannedBlockHeight = lastScannedBlockHeightResult.Match(value => value, error => throw new InvalidOperationException(error));
 
-                return new LastScannedBlockHeight((int)lastScannedBlockHeight, filePath);
+                return new LastScannedBlockHeightHolder((int)lastScannedBlockHeight, filePath);
             }
             catch (Exception)
             {
                 File.WriteAllText(filePath, "0");
-                return new LastScannedBlockHeight(0, filePath);
+                return new LastScannedBlockHeightHolder(0, filePath);
             }
         }
     }

@@ -1,10 +1,11 @@
 ﻿using LookUp.Core;
-using LookUp.Core.Config;
-using LookUp.Core.DataBase;
 using LookUp.Core.Helpers;
-using LookUp.Core.Models;
 using LookUp.Core.Rpc;
 using LookUp.Core.Services;
+using LookUp.Scanner.Config;
+using LookUp.Scanner.DataBase;
+using LookUp.Scanner.LastScannedBlockHeight;
+using LookUp.Scanner.Services;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
 
@@ -35,8 +36,8 @@ public class Startup
         services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
 
         string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
-        var lastScannedBlockHeight = LastScannedBlockHeight.LoadFromFile(lastScannedBlockHeightFilePath);
-        services.AddSingleton<LastScannedBlockHeight>(services => lastScannedBlockHeight);
+        var lastScannedBlockHeight = LastScannedBlockHeightHolder.LoadFromFile(lastScannedBlockHeightFilePath);
+        services.AddSingleton<LastScannedBlockHeightHolder>(services => lastScannedBlockHeight);
 
         var scanChannel = new ScanChannel();
         services.AddSingleton(scanChannel);

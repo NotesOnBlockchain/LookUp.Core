@@ -1,7 +1,10 @@
-﻿using NBitcoin;
-using static LookUp.Core.Serialization.Encode;
+﻿using LookUp.Core.Config;
+using LookUp.Core.Constants;
+using LookUp.Scanner.Serialization;
+using NBitcoin;
+using static LookUp.Scanner.Serialization.Encode;
 
-namespace LookUp.Core.Config
+namespace LookUp.Scanner.Config
 {
     public class Config : ConfigBase
     {
@@ -16,10 +19,8 @@ namespace LookUp.Core.Config
             string mainNetBitcoinRpcUri,
             string testNetBitcoinRpcUri,
             string regTestBitcoinRpcUri,
-            string sqlconnectionstring
-
-            ) : base(filePath)
-            {
+            string sqlconnectionstring) : base(filePath)
+        {
                 Network = network;
                 BitcoinRpcConnectionString = bitcoinRpcConnectionString;
 
@@ -31,11 +32,11 @@ namespace LookUp.Core.Config
 
         public Network Network { get; set; } = Network.Main;
 
-        public string MainNetBitcoinRpcUri { get; set; } = Constants.Constants.DefaultMainNetBitcoinRpcUri;
+        public string MainNetBitcoinRpcUri { get; set; } = Constants.DefaultMainNetBitcoinRpcUri;
 
-        public string TestNetBitcoinRpcUri { get; set; } = Constants.Constants.DefaultTestNetBitcoinRpcUri;
+        public string TestNetBitcoinRpcUri { get; set; } = Constants.DefaultTestNetBitcoinRpcUri;
 
-        public string RegTestBitcoinRpcUri { get; set; } = Constants.Constants.DefaultRegTestBitcoinRpcUri;
+        public string RegTestBitcoinRpcUri { get; set; } = Constants.DefaultRegTestBitcoinRpcUri;
 
         public string BitcoinRpcConnectionString { get; set; } = "user:password";
 
@@ -55,7 +56,7 @@ namespace LookUp.Core.Config
             try
             {
                 using var cfgFile = File.Open(filePath, FileMode.Open, FileAccess.Read);
-                var decoder = Serialization.JsonDecoder.FromStream(Serialization.Decode.ConfigDecode.Config(filePath));
+                var decoder = JsonDecoder.FromStream(Decode.ConfigDecode.Config(filePath));
                 var decodingResult = decoder(cfgFile);
                 return decodingResult.Match(cfg => cfg, error => throw new InvalidOperationException(error));
             }
@@ -67,6 +68,6 @@ namespace LookUp.Core.Config
             }
         }
 
-        protected override string EncodeAsJson() => Serialization.JsonEncoder.ToReadableString(this, ConfigEncode.Config);
+        protected override string EncodeAsJson() => JsonEncoder.ToReadableString(this, ConfigEncode.Config);
     }
 }

@@ -1,7 +1,7 @@
-﻿using LookUp.Core.Models;
+﻿using LookUp.Models;
 using System.Threading.Channels;
 
-namespace LookUp.Core.DataBase
+namespace LookUp.Scanner.DataBase
 {
     public class ScanChannel
     {

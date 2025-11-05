@@ -1,8 +1,8 @@
-﻿using LookUp.Core.DataBase;
+﻿using LookUp.Scanner.DataBase;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
-namespace LookUp.Core.Controllers
+namespace LookUp.Scanner.Controllers
 {
     [Route("/getmessages")]
     public class GetAllController : Controller

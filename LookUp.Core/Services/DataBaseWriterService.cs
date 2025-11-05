@@ -1,4 +1,4 @@
-﻿using LookUp.Core.DataBase;
+﻿using LookUp.Scanner.DataBase;
 
 namespace LookUp.Core.Services
 {
