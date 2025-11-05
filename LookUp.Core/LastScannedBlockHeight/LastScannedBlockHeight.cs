@@ -1,4 +1,4 @@
-﻿namespace LookUp.Core.Models
+﻿namespace LookUp.Scanner.LastScannedBlockHeight
 {
     public class LastScannedBlockHeight
     {
