@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookUp.Scanner", "LookUp.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookUp", "LookUp\LookUp.csproj", "{D3158728-6F6F-457D-B447-5C324EE09570}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookUp.Website", "LookUp.Website\LookUp.Website.csproj", "{A47DBD5C-522E-4FA0-86A2-64A15AE82E60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D3158728-6F6F-457D-B447-5C324EE09570}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3158728-6F6F-457D-B447-5C324EE09570}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3158728-6F6F-457D-B447-5C324EE09570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A47DBD5C-522E-4FA0-86A2-64A15AE82E60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A47DBD5C-522E-4FA0-86A2-64A15AE82E60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A47DBD5C-522E-4FA0-86A2-64A15AE82E60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A47DBD5C-522E-4FA0-86A2-64A15AE82E60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
