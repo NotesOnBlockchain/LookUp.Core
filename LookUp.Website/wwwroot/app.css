@@ -49,3 +49,33 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.about-container h1 {
+    color: #333;
+    border-bottom: 2px solid #007acc;
+    padding-bottom: 10px;
+}
+
+.about-container ul {
+    padding-left: 20px;
+}
+
+.about-container li {
+    margin-bottom: 8px;
+}
+
+.about-container a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+.about-container a:hover {
+        text-decoration: underline;
+}
