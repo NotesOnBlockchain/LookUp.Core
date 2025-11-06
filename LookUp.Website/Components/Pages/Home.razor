@@ -1,7 +1,35 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
 
-<PageTitle>Home</PageTitle>
+<h3>LookUp Data</h3>
 
-<h1>Hello, world!</h1>
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <pre>@data</pre>
+}
 
-Welcome to your new app.
+@code {
+    private string? data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchData();
+    }
+
+    private async Task FetchData()
+    {
+        try
+        {
+            data = await HttpClient.GetStringAsync("https://localhost:37127/test");
+        }
+        catch (Exception ex)
+        {
+            data = $"Error: {ex.Message}";
+        }
+        StateHasChanged();
+    }
+}
