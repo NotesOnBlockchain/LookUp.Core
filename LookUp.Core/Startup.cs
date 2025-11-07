@@ -1,5 +1,4 @@
-﻿using LookUp.Core.Helpers;
-using LookUp.Core.Rpc;
+﻿using LookUp.Core.Rpc;
 using LookUp.Core.Services;
 using LookUp.Helpers;
 using LookUp.Scanner;

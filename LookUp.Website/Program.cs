@@ -1,6 +1,14 @@
 using LookUp.Website.Components;
+using LookUp.Helpers;
+using LookUp.Website.Config;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("LookUp", "Website"));
+string configFilePath = Path.Combine(dataDir, "Config.json");
+
+WebsiteConfig config = WebsiteConfig.LoadFile(configFilePath);
+builder.Services.AddSingleton(services => config);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
