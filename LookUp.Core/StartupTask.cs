@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NBitcoin;
 using System.Security.Authentication;
 
-namespace LookUp.Core
+namespace LookUp.Scanner
 {
     public class StartupTask
     {

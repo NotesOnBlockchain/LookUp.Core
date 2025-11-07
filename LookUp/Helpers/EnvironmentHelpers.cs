@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 
-namespace LookUp.Core.Helpers
+namespace LookUp.Helpers
 {
     public static class EnvironmentHelpers
     {

@@ -1,6 +1,4 @@
-using LookUp.Core.Helpers;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
+using LookUp.Scanner.Helpers;
 
 namespace LookUp.Core
 {

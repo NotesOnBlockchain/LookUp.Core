@@ -1,4 +1,8 @@
-﻿namespace LookUp.Core.Helpers
+﻿using LookUp.Scanner;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace LookUp.Scanner.Helpers
 {
     public static class Extensions
     {

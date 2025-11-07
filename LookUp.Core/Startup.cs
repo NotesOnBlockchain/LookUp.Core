@@ -1,9 +1,11 @@
-﻿using LookUp.Core;
-using LookUp.Core.Helpers;
+﻿using LookUp.Core.Helpers;
 using LookUp.Core.Rpc;
 using LookUp.Core.Services;
+using LookUp.Helpers;
+using LookUp.Scanner;
 using LookUp.Scanner.Config;
 using LookUp.Scanner.DataBase;
+using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
 using LookUp.Scanner.Services;
 using Microsoft.EntityFrameworkCore;
