@@ -1,4 +1,6 @@
-﻿namespace LookUp.Scanner.LastScannedBlockHeight
+﻿using LookUp.Serialization;
+
+namespace LookUp.Scanner.LastScannedBlockHeight
 {
     public class LastScannedBlockHeightHolder
     {
@@ -34,7 +36,7 @@
             try
             {
                 using var lastScannedBlockFile = File.OpenRead(filePath);
-                var decoder = Serialization.JsonDecoder.FromStream(Serialization.Decode.Int64);
+                var decoder = JsonDecoder.FromStream(Decode.Int64);
                 var lastScannedBlockHeightResult = decoder(lastScannedBlockFile);
 
                 long lastScannedBlockHeight = lastScannedBlockHeightResult.Match(value => value, error => throw new InvalidOperationException(error));

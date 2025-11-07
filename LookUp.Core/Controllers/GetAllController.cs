@@ -1,4 +1,5 @@
 ﻿using LookUp.Scanner.DataBase;
+using LookUp.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -22,7 +23,7 @@ namespace LookUp.Scanner.Controllers
 
             foreach (var message in messages)
             {
-                stringBuilder.AppendLine(Serialization.Encode.Message(message).ToString());
+                stringBuilder.AppendLine(Encode.Message(message).ToString());
             }
 
             return Ok($"{stringBuilder.ToString()}");

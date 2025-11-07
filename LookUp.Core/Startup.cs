@@ -1,8 +1,8 @@
-﻿using LookUp.Core.Rpc;
+﻿using LookUp.Config;
+using LookUp.Core.Rpc;
 using LookUp.Core.Services;
 using LookUp.Helpers;
 using LookUp.Scanner;
-using LookUp.Scanner.Config;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
