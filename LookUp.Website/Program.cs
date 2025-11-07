@@ -1,6 +1,6 @@
 using LookUp.Website.Components;
 using LookUp.Helpers;
-using LookUp.Website.Config;
+using LookUp.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
