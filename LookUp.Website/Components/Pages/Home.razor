@@ -1,35 +1,105 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
+@inject WebsiteConfig Config
 
 <h3>LookUp Data</h3>
 
-@if (data == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <pre>@data</pre>
-}
+<div class="search-container">    
+    <div class="search-form">
+        <input 
+            type="text" 
+            @bind="searchBarContent" 
+            placeholder="Search by TxID, Message, Date..." 
+            class="search-input" />
+        
+        <button @onclick="Search" class="search-button">
+            Search
+        </button>
+    </div>
+</div>
 
-@code {
-    private string? data;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await FetchData();
+<style>
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    private async Task FetchData()
+    .search-form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .search-button {
+        padding: 10px 20px;
+        background-color: #007acc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .search-button:hover {
+        background-color: #005a9e;
+    }
+
+    .result-container {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border-left: 4px solid #007acc;
+    }
+
+    .result-container h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .error {
+        color: #d32f2f;
+        background-color: #ffebee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+</style>
+
+@code {
+
+    private string searchBarContent = string.Empty;
+    private List<string> searchResults = new List<string>();
+
+    private async Task Search()
     {
         try
         {
-            data = await HttpClient.GetStringAsync("https://localhost:37127/test");
-        }
-        catch (Exception ex)
+            var response = await HttpClient!.GetStringAsync($"{Config.BandendUri}/search?={Uri.EscapeDataString(searchBarContent)}");
+        } 
+        catch (Exception)
         {
-            data = $"Error: {ex.Message}";
         }
+
         StateHasChanged();
     }
 }
