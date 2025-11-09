@@ -10,6 +10,6 @@
         public const int DefaultTestNetBitcoinRpcPort = 48332;
         public const int DefaultRegTestBitcoinCorePort = 18443;
 
-        public static readonly string DefaultBackendUri = $"http://localhost:37127";
+        public static readonly string DefaultBackendUri = $"https://localhost:37127";
     }
 }
