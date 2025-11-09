@@ -12,10 +12,10 @@ namespace LookUp.Scanner.Controllers
 
         private MessageRepository MessageRepository { get; }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchAsync([FromQuery] string searchContent)
+        [HttpGet("/search")]
+        public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {
-           var searchResult = await MessageRepository.FindAsync(searchContent);
+           var searchResult = await MessageRepository.FindAsync(query);
 
             if (searchResult.Count == 0 || searchResult is null) 
             {

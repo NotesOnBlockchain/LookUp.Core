@@ -94,7 +94,7 @@
     {
         try
         {
-            var response = await HttpClient!.GetFromJsonAsync<List<Models.MessageModel>>($"{Config.BandendUri}/search?={Uri.EscapeDataString(searchBarContent)}");
+            var response = await HttpClient!.GetFromJsonAsync<List<Models.MessageModel>>($"{Config.BandendUri}/search?query={Uri.EscapeDataString(searchBarContent)}");
         } 
         catch (Exception ex)
         {
