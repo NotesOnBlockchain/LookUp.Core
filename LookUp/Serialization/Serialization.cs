@@ -39,6 +39,12 @@ namespace LookUp.Serialization
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonNode Int64(long value) => JsonValue.Create(value);
 
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonNode DatetimeOffset(DateTimeOffset value) => JsonValue.Create(value);
+
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonNode Guid(Guid value) => JsonValue.Create(value);
+
         private static JsonNode Hexadecimal(byte[] bytes) =>
         String(Convert.ToHexString(bytes));
 
@@ -187,6 +193,14 @@ namespace LookUp.Serialization
 
         public static readonly Decoder<uint256> UInt256 =
             String.Map(s => new uint256(s)).Catch();
+
+        public static Decoder<DateTimeOffset> DateTimeOffset =
+            String.Map(System.DateTimeOffset.Parse);
+
+        public static Decoder<Guid> Guid =>
+            String.AndThen(str => System.Guid.TryParse(str, out var guid)
+                ? Succeed(guid)
+                : Fail<Guid>("The string is empty"));
 
         public static readonly Decoder<Network> Network =
             String.AndThen(name =>
@@ -343,6 +357,18 @@ namespace LookUp.Serialization
                     filePath,
                     get.Required("BackendUri", String)
                 ));
+        }
+
+        public static class MessageDecode
+        {
+            public static Decoder<MessageModel> MessageModel() =>
+                Object(get => new MessageModel(
+                    get.Required("ID", Guid),
+                    get.Required("TransactionID", Decode.String),
+                    get.Required("Message", String),
+                    get.Required("Hex", String),
+                    get.Required("BlochHash", String),
+                    get.Required("BlockMinedAt", Decode.DateTimeOffset)));
         }
     }
 
