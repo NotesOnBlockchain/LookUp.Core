@@ -7,8 +7,6 @@ namespace LookUp.Scanner.DataBase
     {
         private readonly MessageDatabaseContext _dBContext;
 
-        private object _dBContextLock = new();
-
         public MessageRepository(MessageDatabaseContext databaseContext)
         {
             _dBContext = databaseContext;
@@ -16,19 +14,13 @@ namespace LookUp.Scanner.DataBase
 
         public List<MessageModel> GetMessages()
         {
-            lock (_dBContextLock)
-            {
-                return _dBContext.Messages.ToList();
-            }
+             return _dBContext.Messages.ToList();
         }
 
         public void AddMessage(MessageModel message)
         {
-            lock(_dBContextLock)
-            {
-                _dBContext.Messages.Add(message);
-                _dBContext.SaveChanges();
-            }
+             _dBContext.Messages.Add(message);
+             _dBContext.SaveChanges();
         }
 
         public async Task<List<MessageModel>> FindAsync(string query)
@@ -55,24 +47,18 @@ namespace LookUp.Scanner.DataBase
 
         public void RemoveMessage(MessageModel message) 
         {
-            lock (_dBContextLock) 
-            {
-                _dBContext.Messages.Remove(message);
-                _dBContext.SaveChanges();
-            }
+             _dBContext.Messages.Remove(message);
+             _dBContext.SaveChanges();
         }
         public void Clear() 
         {
-            lock (_dBContextLock) 
-            {
-                var messages = GetMessages();
-                foreach (var message in messages) 
-                {
-                    _dBContext.Messages.Remove(message);
-                }
+             var messages = GetMessages();
+             foreach (var message in messages) 
+             {
+                 _dBContext.Messages.Remove(message);
+             }
 
-                _dBContext.SaveChanges();
-            }
+             _dBContext.SaveChanges();
         }
     }
 }
