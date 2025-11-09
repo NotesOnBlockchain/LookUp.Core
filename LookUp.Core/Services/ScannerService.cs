@@ -141,7 +141,7 @@ namespace LookUp.Scanner.Services
 
             // Decode to string
             string message = Encoding.UTF8.GetString(bytes);
-            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
+            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
         }
     }
 }

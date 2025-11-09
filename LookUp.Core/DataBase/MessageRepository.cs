@@ -47,7 +47,7 @@ namespace LookUp.Scanner.DataBase
                 EF.Functions.ILike(model.Message, $"%{query}%") ||
                 model.Hex.Equals(query) ||
                 model.BlockHash.Equals(query) ||
-                (dayStart != null && model.BlockMinedAt >= dayStart && model.BlockMinedAt < dayEnd))
+                (dayStart != null && model.BlockMinedAt >= dayStart && dayEnd != null && model.BlockMinedAt < dayEnd))
                 .Distinct()
                 .ToListAsync();
             
