@@ -1,6 +1,7 @@
 ﻿using LookUp.Models;
 using LookUp.Scanner.DataBase;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LookUp.Scanner.Controllers
@@ -16,6 +17,7 @@ namespace LookUp.Scanner.Controllers
         private MessageRepository MessageRepository { get; }
         private IMemoryCache Cache { get; }
 
+        [EnableRateLimiting("SearchEndpointLimiter")]
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {

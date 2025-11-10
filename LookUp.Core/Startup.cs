@@ -7,6 +7,7 @@ using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
 using LookUp.Scanner.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
 
@@ -55,6 +56,16 @@ public class Startup
         services.AddMemoryCache();
         services.AddMvc();
         services.AddControllers();
+
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("SearchEndpointLimiter", conf =>
+            {
+                conf.Window = TimeSpan.FromSeconds(10);
+                conf.PermitLimit = 5;       // 5 request every 10 seconds
+                conf.QueueLimit = 0;
+            });
+        });
 
         services.AddStartupTask<StartupTask>();
 
