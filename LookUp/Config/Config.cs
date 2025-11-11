@@ -40,7 +40,7 @@ namespace LookUp.Config
 
         public string BitcoinRpcConnectionString { get; set; } = "user:password";
 
-        public string SQLConnectionString { get; set; } = "Server=myserver;Port=myport;Database=mydatabase;User Id=User;Password=Password";
+        public string SQLConnectionString { get; set; } = "Server=myserver;Host=myhost;Port=myport;Database=mydatabase;User Id=User;Password=Password";
 
         public string GetBitcoinRpcUri() =>
             Network switch
