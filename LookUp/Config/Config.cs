@@ -7,18 +7,19 @@ namespace LookUp.Config
 {
     public class Config : ConfigBase
     {
-        public Config(string filePath) : base(filePath)
+        public Config(string filePath, string apiKey) : base(filePath, apiKey)
         {
         }
 
         public Config(
             string filePath,
+            string apiKey,
             Network network,
             string bitcoinRpcConnectionString,
             string mainNetBitcoinRpcUri,
             string testNetBitcoinRpcUri,
             string regTestBitcoinRpcUri,
-            string sqlconnectionstring) : base(filePath)
+            string sqlconnectionstring) : base(filePath, apiKey)
         {
                 Network = network;
                 BitcoinRpcConnectionString = bitcoinRpcConnectionString;
@@ -61,7 +62,7 @@ namespace LookUp.Config
             }
             catch (Exception)
             {
-                var config = new Config(filePath);
+                var config = new Config(filePath, apiKey: "REPLACE-ME-WITH-YOUR-REAL-APIKEY");
                 File.WriteAllTextAsync(filePath, config.EncodeAsJson());
                 return config;
             }

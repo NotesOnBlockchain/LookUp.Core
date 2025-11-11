@@ -5,11 +5,11 @@ namespace LookUp.Config
 {
     public class WebsiteConfig : ConfigBase
     {
-        public WebsiteConfig(string filePath) : base(filePath)
+        public WebsiteConfig(string filePath, string apiKey) : base(filePath, apiKey)
         {
         }
 
-        public WebsiteConfig(string filePath, string backendUri) : base(filePath)
+        public WebsiteConfig(string filePath, string apiKey, string backendUri) : base(filePath, apiKey)
         {
             BandendUri = backendUri;
         }
@@ -26,7 +26,7 @@ namespace LookUp.Config
             }
             catch (Exception)
             {
-                var config = new WebsiteConfig(filePath);
+                var config = new WebsiteConfig(filePath, apiKey: "REPLACE-ME-WITH-YOUR-REAL-APIKEY");
                 File.WriteAllTextAsync(filePath, config.EncodeAsJson());
                 return config;
             }

@@ -90,11 +90,14 @@ namespace LookUp.Serialization
                 ("MainNetBitcoinRpcUri", String(cfg.MainNetBitcoinRpcUri)),
                 ("TestNetBitcoinRpcUri", String(cfg.TestNetBitcoinRpcUri)),
                 ("RegTestBitcoinRpcUri", String(cfg.RegTestBitcoinRpcUri)),
-                ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString))
+                ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString)),
+                ("SQLConnectionString", String(cfg.SQLConnectionString)),
+                ("LookUp-APIKEY", String(cfg.APIKey))
             ]);
 
         public static JsonNode WebsiteConfig(Config.WebsiteConfig cfg) => Object([
-            ("BackendUri", String(cfg.BandendUri))
+                ("BackendUri", String(cfg.BandendUri)),
+                ("LookUp-APIKEY", String(cfg.APIKey))
             ]);
 
         public static JsonNode Message(MessageModel message) =>
@@ -111,11 +114,13 @@ namespace LookUp.Serialization
         {
             public static JsonNode Config(Config.Config cfg) =>
                 Object([
-                    ("Network", Network(cfg.Network) ),
-                    ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString) ),
-                    ("MainNetBitcoinCoreRpcEndPoint", String(cfg.MainNetBitcoinRpcUri) ),
-                    ("TestNetBitcoinCoreRpcEndPoint", String(cfg.TestNetBitcoinRpcUri) ),
-                    ("RegTestBitcoinCoreRpcEndPoint", String(cfg.RegTestBitcoinRpcUri) )
+                    ("Network", Network(cfg.Network)),
+                    ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString)),
+                    ("MainNetBitcoinCoreRpcEndPoint", String(cfg.MainNetBitcoinRpcUri)),
+                    ("TestNetBitcoinCoreRpcEndPoint", String(cfg.TestNetBitcoinRpcUri)),
+                    ("RegTestBitcoinCoreRpcEndPoint", String(cfg.RegTestBitcoinRpcUri)),
+                    ("SQLConnectionString", String(cfg.SQLConnectionString)),
+                    ("LookUp-APIKEY", String(cfg.APIKey))
                 ]);
         }
 
@@ -123,7 +128,8 @@ namespace LookUp.Serialization
         {
             public static JsonNode WebsiteConfig(Config.WebsiteConfig cfg) =>
                 Object([
-                        ("BackendUri", String(cfg.BandendUri))
+                    ("BackendUri", String(cfg.BandendUri)),
+                    ("LookUp-APIKEY", String(cfg.APIKey))
                 ]);
         }
 
@@ -144,7 +150,7 @@ namespace LookUp.Serialization
                 }
             };
         public static Decoder<Config.Config> Config(string filePath) =>
-            Object(get => new Config.Config(filePath)
+            Object(get => new Config.Config(filePath, get.Required("LookUp-APIKEY", String))
             {
                 Network = get.Required("Network", Network),
                 MainNetBitcoinRpcUri = get.Required("MainNetBitcoinRpcUri", String),
@@ -154,7 +160,7 @@ namespace LookUp.Serialization
             });
 
         public static Decoder<Config.WebsiteConfig> WebsiteConfig(string filePath) =>
-            Object(get => new Config.WebsiteConfig(filePath)
+            Object(get => new Config.WebsiteConfig(filePath, get.Required("LookUp-APIKEY", String))
             {
                 BandendUri = get.Required("BackendUri" , String)
             });
@@ -341,6 +347,7 @@ namespace LookUp.Serialization
             public static Decoder<Config.Config> Config(string filePath) =>
                 Object(get => new Config.Config(
                     filePath,
+                    get.Required("LookUp-APIKEY", String),
                     get.Required("Network", Network),
                     get.Required("BitcoinRpcConnectionString", String),
                     get.Required("MainNetBitcoinCoreRpcEndPoint", String),
@@ -355,6 +362,7 @@ namespace LookUp.Serialization
             public static Decoder<Config.WebsiteConfig> WebsiteConfig(string filePath) =>
                 Object(get => new Config.WebsiteConfig(
                     filePath,
+                    get.Required("LookUp-APIKEY", String),
                     get.Required("BackendUri", String)
                 ));
         }
