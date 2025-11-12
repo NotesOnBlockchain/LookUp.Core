@@ -1,6 +1,162 @@
 ﻿@page "/"
 
-<h3>LookUp Home Page</h3>
+<div class="home-container">
+    <h1>Look Up - Blockchain Message Explorer</h1>
+
+    <div class="cards-container">
+        @foreach (var message in messages)
+        {
+            <div class="message-card">
+                <div class="card-header">
+                    <h3>Transaction Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="card-row">
+                        <label>Transaction ID:</label>
+                        <span class="value">@message.TransactionID</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Message:</label>
+                        <span class="value">@message.Message</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Hex:</label>
+                        <span class="value">@message.Hex</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Block Hash:</label>
+                        <span class="value">@message.BlockHash</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Block Mined At:</label>
+                        <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .home-container {
+        background-color: #121212;
+        color: #e0e0e0;
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+        .home-container h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffffff;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(0, 122, 204, 0.5);
+        }
+
+    .cards-container {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .message-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
+        width: 350px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .message-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            border-color: #007acc;
+        }
+
+    .card-header {
+        background-color: #252526;
+        padding: 15px;
+        border-bottom: 1px solid #333;
+        border-radius: 8px 8px 0 0;
+    }
+
+        .card-header h3 {
+            margin: 0;
+            color: #007acc;
+            font-size: 1.2rem;
+        }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-row {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card-row label {
+            font-weight: bold;
+            color: #007acc;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+    .value {
+        word-break: break-all;
+        padding: 8px;
+        background-color: #2d2d30;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #dcdcdc;
+    }
+
+    @@media (max-width: 1200px) {
+        .cards-container
+        {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .message-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+    }
+</style>
 
 @code {
+    private List<MessageModel> messages = new()
+    {
+        new MessageModel(
+            new Guid(),
+            "51b77d7f2533ef7c24356fe05a3077e5dd148598e7ff7d468d11c334cc1c3ba0",
+            "Test Message",
+            "aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf9",
+            "25aacb4940eb559699b2bb90d0078ce17c6af2a7c5a351fc162734e3d8dde0da",
+            DateTimeOffset.UtcNow.AddDays(-1)),
+        new MessageModel(
+            new Guid(),
+            "b7550363b240637316bb300a425d2299596b50eee1b06c061781ea8eb7fc0724",
+            "Test Message 2!",
+            "aa21a9edf047eaff41aae7cfbdd8b61b61b53b5de1129b8f56921331b56358d3e486693e",
+            "0a8ad44792abb52bc4114597a7f093278368bc434c94c4d8dcdccbb5c1ae12c1",
+            DateTimeOffset.UtcNow.AddDays(-3)),
+        new MessageModel(
+            new Guid(),
+            "0a541c952ca9979cc3e45c721d602eb530919f6f12173e5befeb2a1d7d877f91",
+            "LongLongLongLLLLONGGGGMessagesLONGLONGLONGLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+            "aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf9",
+            "26b1696b5126067cdf1dae3d61ea1449a36c1b2ac20f4083e93edd4b05bce9d8",
+            DateTimeOffset.UtcNow.AddDays(-5)
+        )
+    };
 }
