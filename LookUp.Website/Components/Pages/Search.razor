@@ -2,18 +2,62 @@
 @inject HttpClient HttpClient
 @inject WebsiteConfig Config
 
-<h3>LookUp Data</h3>
+<div class="home-container">
+    <div class="search-container">
+        <div class="search-form">
+            <input type="text"
+                   @bind="searchBarContent"
+                   placeholder="Search by TxID, Message, Date..."
+                   class="search-input" />
 
-<div class="search-container">
-    <div class="search-form">
-        <input type="text"
-               @bind="searchBarContent"
-               placeholder="Search by TxID, Message, Date..."
-               class="search-input" />
+            <button @onclick="SendSearchReq" class="search-button">
+                Search
+            </button>
+        </div>
 
-        <button @onclick="SendSearchReq" class="search-button">
-            Search
-        </button>
+        <div class="cards-container">
+            @if (searchResult.Count > 0)
+            {
+                @foreach (var message in searchResult)
+                {
+                    <div class="message-card">
+                        <div class="card-header">
+                            <h3>Transaction Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-row">
+                                <label>Transaction ID:</label>
+                                <span class="value">@message.TransactionID</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Message:</label>
+                                <span class="value">@message.Message</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Hex:</label>
+                                <span class="value">@message.Hex</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Block Hash:</label>
+                                <span class="value">@message.BlockHash</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Block Mined At:</label>
+                                <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else if (searchResult.Count == 0 && isRequested)
+            {
+                <h3>No Results...</h3>
+            }
+            else
+            {
+                <!-- EMPTY FOR A REASON -->
+            }
+        </div>
     </div>
 </div>
 
@@ -87,15 +131,19 @@
 @code {
 
     private string searchBarContent = string.Empty;
-    private List<string> searchResults = new List<string>();
+    private List<MessageModel> searchResult = new List<MessageModel>();
+    private bool isRequested = false;
 
     private async Task SendSearchReq()
     {
         try
         {
+            isRequested = true;
             var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={Uri.EscapeDataString(searchBarContent)}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             var response = await HttpClient!.SendAsync(request);
+            
+            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>();
         }
         catch (Exception ex)
         {
