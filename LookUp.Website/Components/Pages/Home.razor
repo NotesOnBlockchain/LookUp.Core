@@ -42,16 +42,18 @@
         background-color: #121212;
         color: #e0e0e0;
         min-height: 100vh;
-        padding: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
         .home-container h1 {
             text-align: center;
-            margin-bottom: 40px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
             color: #ffffff;
             font-size: 2.5rem;
-            text-shadow: 0 0 10px rgba(0, 122, 204, 0.5);
         }
 
     .cards-container {
@@ -65,15 +67,12 @@
 
     .message-card {
         background-color: #1e1e1e;
-        border: 1px solid #333;
+        border: 3px solid #1e1e1e;
         border-radius: 8px;
         width: 350px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
         .message-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
             border-color: #007acc;
         }
@@ -83,6 +82,7 @@
         padding: 15px;
         border-bottom: 1px solid #333;
         border-radius: 8px 8px 0 0;
+        text-align: center;
     }
 
         .card-header h3 {
