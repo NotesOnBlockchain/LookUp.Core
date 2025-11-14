@@ -32,16 +32,17 @@ namespace LookUp.Scanner.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
-                var tipHeight = blockchainInfo.Blocks;
+                var tipHeight = (int)blockchainInfo.Blocks;
 
-                if ((int)tipHeight > LastScannedBlockHeight.BlockHeight)
+                if (tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
-                    var currentAllHashes = await FetchBlockHashesAsnyc((int)tipHeight, stoppingToken);
+                    var currentAllHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
                     var missingHashes = currentAllHashes.Except(previousHashes);
 
                     if (!missingHashes.Any())
                     {
-                        continue;
+                        Logger.Logger.LogCritical("Scanner is behind the tipHeight, but couldn't receive the missing block hashes.");
+                        throw new Exception("Scanner is behind the tipHeight, but couldn't receive the missing block hashes");
                     }
 
                     var batches = missingHashes.Chunk(batchSize);
@@ -92,6 +93,7 @@ namespace LookUp.Scanner.Services
             foreach (var block in blocks)
             {
                 await ProcessBlockAsync(block);
+                LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height);
             }
 
             LastScannedBlockHeight.IncreaseLastScannedBlockHeight(blocks.Count);

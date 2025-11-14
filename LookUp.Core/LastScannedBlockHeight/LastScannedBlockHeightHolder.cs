@@ -15,18 +15,11 @@ namespace LookUp.Scanner.LastScannedBlockHeight
         private string LastScannedBlockHeightFilePath { get; }
 
 
-        public void IncreaseLastScannedBlockHeight(int processedBlockCount)
+        public void IncreaseLastScannedBlockHeight(int blockHeight)
         {
             lock (LastScannedBlockHeightLock)
             {
-                BlockHeight += processedBlockCount;
-            }
-        }
-
-        public void SaveLastScannedBlockHeight()
-        {
-            lock (LastScannedBlockHeightLock)
-            {
+                BlockHeight = blockHeight;
                 File.WriteAllText(LastScannedBlockHeightFilePath, BlockHeight.ToString());
             }
         }
