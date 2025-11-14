@@ -2,6 +2,7 @@
 using LookUp.Core.Rpc;
 using LookUp.Core.Services;
 using LookUp.Helpers;
+using LookUp.Logger;
 using LookUp.Scanner;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
@@ -26,6 +27,8 @@ public class Startup
         string dataDir = Configuration["datadir"] ?? EnvironmentHelpers.GetDataDir(Path.Combine("LookUp", "Backend"));
         string configFilePath = Path.Combine(dataDir, "Config.json");
         Config config = Config.LoadFile(configFilePath);
+
+        Logger.Initialize(Path.Combine(dataDir, "Logs.txt"));
 
         services.AddSingleton(serviceProvider => config);
 

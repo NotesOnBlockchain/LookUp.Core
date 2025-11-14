@@ -1,10 +1,14 @@
 using LookUp.Website.Components;
 using LookUp.Helpers;
 using LookUp.Config;
+using LookUp.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("LookUp", "Website"));
+
+Logger.Initialize(Path.Combine(dataDir, "Logs.txt"));
+
 string configFilePath = Path.Combine(dataDir, "Config.json");
 
 WebsiteConfig config = WebsiteConfig.LoadFile(configFilePath);
