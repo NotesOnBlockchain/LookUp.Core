@@ -44,21 +44,5 @@ namespace LookUp.Scanner.DataBase
                 .ToListAsync();
             
         }
-
-        public void RemoveMessage(MessageModel message) 
-        {
-             _dBContext.Messages.Remove(message);
-             _dBContext.SaveChanges();
-        }
-        public void Clear() 
-        {
-             var messages = GetMessages();
-             foreach (var message in messages) 
-             {
-                 _dBContext.Messages.Remove(message);
-             }
-
-             _dBContext.SaveChanges();
-        }
     }
 }
