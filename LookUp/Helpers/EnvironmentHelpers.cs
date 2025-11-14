@@ -53,5 +53,21 @@ namespace LookUp.Helpers
             DataDirDict.TryAdd(appName, directory);
             return directory;
         }
+
+        public static void EnsureContainingDirectoryExists(string fileNameOrPath)
+        {
+            string fullPath = Path.GetFullPath(fileNameOrPath); // No matter if relative or absolute path is given to this.
+            string? dir = Path.GetDirectoryName(fullPath);
+            EnsureDirectoryExists(dir);
+        }
+
+        public static void EnsureDirectoryExists(string? dir)
+        {
+            // If root is given, then do not worry.
+            if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+        }
     }
 }
