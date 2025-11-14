@@ -36,24 +36,23 @@ namespace LookUp.Scanner.Services
 
                 if (tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
-                    var currentAllHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
-                    var missingHashes = currentAllHashes.Except(previousHashes);
+                    var currentAllBlockHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
+                    var missingBlockHashes = currentAllBlockHashes.Except(previousHashes);
 
-                    if (!missingHashes.Any())
+                    if (!missingBlockHashes.Any())
                     {
                         Logger.Logger.LogCritical("Scanner is behind the tipHeight, but couldn't receive the missing block hashes.");
                         throw new Exception("Scanner is behind the tipHeight, but couldn't receive the missing block hashes");
                     }
 
-                    var batches = missingHashes.Chunk(batchSize);
+                    var batches = missingBlockHashes.Chunk(batchSize);
 
                     foreach (var batch in batches)
                     {
-                        await ProcessBatchOfHashes(batch, stoppingToken);
+                        await ProcessBatchOfBlockHashes(batch, stoppingToken);
                     }
 
-                    previousHashes = currentAllHashes;
-                    LastScannedBlockHeight.SaveLastScannedBlockHeight();
+                    previousHashes = currentAllBlockHashes;
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
@@ -86,7 +85,7 @@ namespace LookUp.Scanner.Services
             return results.ToList();
         }
 
-        private async Task ProcessBatchOfHashes(uint256[] batch, CancellationToken cancellationToken)
+        private async Task ProcessBatchOfBlockHashes(uint256[] batch, CancellationToken cancellationToken)
         {
             var blocks = await FetchBlocksAsync(batch.ToList(), cancellationToken);
 
