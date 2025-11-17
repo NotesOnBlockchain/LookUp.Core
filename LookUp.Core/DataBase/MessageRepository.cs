@@ -19,8 +19,19 @@ namespace LookUp.Scanner.DataBase
 
         public void AddMessage(MessageModel message)
         {
-             _dBContext.Messages.Add(message);
-             _dBContext.SaveChanges();
+            try
+            {
+                _dBContext.Messages.Add(message);
+                _dBContext.SaveChanges();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException!.Message.Contains("duplicate key value"))
+            {
+                Logger.Logger.LogWarning(ex);
+            }
+            catch (Exception ex) 
+            {
+                Logger.Logger.LogCritical(ex);
+            }
         }
 
         public async Task<List<MessageModel>> FindAsync(string query)

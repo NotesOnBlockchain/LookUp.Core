@@ -9,7 +9,7 @@ namespace LookUp.Scanner.DataBase
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<MessageModel>().HasAlternateKey(x => new { x.TransactionID, x.Hex });
         }
     }
 }
