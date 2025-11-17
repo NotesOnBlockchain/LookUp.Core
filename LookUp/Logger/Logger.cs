@@ -12,7 +12,7 @@ namespace LookUp.Logger
 
         private static void SetFilePath(string filePath)
         {
-            FilePath = filePath;
+            FilePath = Path.Combine(filePath, "Logs.txt");
             Helpers.EnvironmentHelpers.EnsureDirectoryExists(filePath);
         }
 

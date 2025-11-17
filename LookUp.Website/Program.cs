@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 string dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("LookUp", "Website"));
 
-Logger.Initialize(Path.Combine(dataDir, "Logs.txt"));
+Logger.Initialize(dataDir);
 
 string configFilePath = Path.Combine(dataDir, "Config.json");
 

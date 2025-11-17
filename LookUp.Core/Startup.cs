@@ -28,7 +28,7 @@ public class Startup
         string configFilePath = Path.Combine(dataDir, "Config.json");
         Config config = Config.LoadFile(configFilePath);
 
-        Logger.Initialize(Path.Combine(dataDir, "Logs.txt"));
+        Logger.Initialize(dataDir);
 
         services.AddSingleton(serviceProvider => config);
 
