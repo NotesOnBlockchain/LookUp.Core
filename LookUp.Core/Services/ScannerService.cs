@@ -92,7 +92,7 @@ namespace LookUp.Scanner.Services
             foreach (var block in blocks)
             {
                 await ProcessBlockAsync(block);
-                LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height);
+                LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height + 1); // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
             }
 
             LastScannedBlockHeight.IncreaseLastScannedBlockHeight(blocks.Count);
