@@ -171,3 +171,7 @@ h1:focus {
         max-width: 400px;
     }
 }
+
+.text-danger {
+    text-align: center;
+}
