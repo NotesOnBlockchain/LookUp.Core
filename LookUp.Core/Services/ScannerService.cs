@@ -27,8 +27,6 @@ namespace LookUp.Scanner.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var previousHashes = new List<uint256>();
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
@@ -36,23 +34,21 @@ namespace LookUp.Scanner.Services
 
                 if (tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
-                    var currentAllBlockHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
-                    var missingBlockHashes = currentAllBlockHashes.Except(previousHashes);
+                    var blockHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
+                    var unprocessedBlockHashes = blockHashes.GetRange(LastScannedBlockHeight.BlockHeight, blockHashes.Count - LastScannedBlockHeight.BlockHeight);
 
-                    if (!missingBlockHashes.Any())
+                    if (unprocessedBlockHashes.Count == 0)
                     {
                         Logger.Logger.LogCritical("Scanner is behind the tipHeight, but couldn't receive the missing block hashes.");
                         throw new Exception("Scanner is behind the tipHeight, but couldn't receive the missing block hashes");
                     }
 
-                    var batches = missingBlockHashes.Chunk(batchSize);
+                    var batches = unprocessedBlockHashes.Chunk(batchSize);
 
                     foreach (var batch in batches)
                     {
                         await ProcessBatchOfBlockHashes(batch, stoppingToken);
                     }
-
-                    previousHashes = currentAllBlockHashes;
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
