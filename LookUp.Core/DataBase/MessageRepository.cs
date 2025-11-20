@@ -32,6 +32,8 @@ namespace LookUp.Scanner.DataBase
             {
                 Logger.Logger.LogCritical(ex);
             }
+
+            Logger.Logger.LogInfo($"Added message to Database: {message}");
         }
 
         public async Task<List<MessageModel>> FindAsync(string query)
