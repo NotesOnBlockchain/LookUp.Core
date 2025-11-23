@@ -144,7 +144,7 @@
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             var response = await HttpClient!.SendAsync(request);
             
-            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>();
+            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>() ?? new List<MessageModel>();
         }
         catch (Exception ex)
         {
