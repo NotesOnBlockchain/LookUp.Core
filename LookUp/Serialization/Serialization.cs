@@ -66,39 +66,6 @@ namespace LookUp.Serialization
         public static JsonNode MoneyBitcoins(Money money) =>
             String(money.ToString(fplus: false, trimExcessZero: true));
 
-        private static JsonNode TxOut(TxOut txo) =>
-            Object([
-                ("ScriptPubKey", Script(txo.ScriptPubKey)),
-                ("Value", MoneySatoshis(txo.Value))
-            ]);
-
-        private static JsonNode Coin(Coin coin) =>
-            Object([
-                ("Outpoint", Outpoint(coin.Outpoint)),
-                ("TxOut", TxOut(coin.TxOut))
-            ]);
-
-        private static JsonNode FeeRate(FeeRate feeRate) =>
-            MoneySatoshis(feeRate.FeePerK);
-
-        private static JsonNode WitScript(WitScript witScript) =>
-            Hexadecimal(witScript.ToBytes());
-
-        public static JsonNode Config(Config.Config cfg) =>
-            Object([
-                ("Network", Network(cfg.Network)),
-                ("MainNetBitcoinRpcUri", String(cfg.MainNetBitcoinRpcUri)),
-                ("TestNetBitcoinRpcUri", String(cfg.TestNetBitcoinRpcUri)),
-                ("RegTestBitcoinRpcUri", String(cfg.RegTestBitcoinRpcUri)),
-                ("BitcoinRpcConnectionString", String(cfg.BitcoinRpcConnectionString)),
-                ("SQLConnectionString", String(cfg.SQLConnectionString)),
-                ("LookUp-APIKEY", String(cfg.APIKey))
-            ]);
-
-        public static JsonNode WebsiteConfig(Config.WebsiteConfig cfg) => Object([
-                ("BackendUri", String(cfg.BandendUri)),
-                ("LookUp-APIKEY", String(cfg.APIKey))
-            ]);
 
         public static JsonNode Message(MessageModel message) =>
             Object([
