@@ -41,65 +41,10 @@ namespace LookUp.Scanner.Services
 
                         await ProcessBlockAsync(block);
                     }
-                    /*
-                    var blockHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
-                    var unprocessedBlockHashes = blockHashes.GetRange(LastScannedBlockHeight.BlockHeight, blockHashes.Count - LastScannedBlockHeight.BlockHeight);
-
-                    if (unprocessedBlockHashes.Count == 0)
-                    {
-                        Logger.Logger.LogCritical("Scanner is behind the tipHeight, but couldn't receive the missing block hashes.");
-                        throw new Exception("Scanner is behind the tipHeight, but couldn't receive the missing block hashes");
-                    }
-
-                    var batches = unprocessedBlockHashes.Chunk(batchSize);
-
-                    foreach (var batch in batches)
-                    {
-                        await ProcessBatchOfBlockHashes(batch, stoppingToken);
-                    }*/
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
-        }
-
-        private async Task<List<uint256>> FetchBlockHashesAsnyc(int blockHeight, CancellationToken cancellationToken)
-        {
-            var batchClient = RpcClient.PrepareBatch();
-
-            var tasks = Enumerable.Range(0, blockHeight).Select(x => RpcClient.GetBlockHashAsync(x, cancellationToken));
-
-            await batchClient.SendBatchAsync(cancellationToken);
-
-            var results = await Task.WhenAll(tasks);
-
-            return results.ToList();
-        }
-
-        private async Task<List<VerboseBlockInfo>> FetchBlocksAsync(List<uint256> blockHashes, CancellationToken cancellationToken)
-        {
-            var batchClient = RpcClient.PrepareBatch();
-
-            var tasks = blockHashes.Select(x => RpcClient.GetVerboseBlockAsync(x, cancellationToken));
-
-            await batchClient.SendBatchAsync(cancellationToken);
-
-            var results = await Task.WhenAll(tasks);
-
-            return results.ToList();
-        }
-
-        private async Task ProcessBatchOfBlockHashes(uint256[] batch, CancellationToken cancellationToken)
-        {
-            var blocks = await FetchBlocksAsync(batch.ToList(), cancellationToken);
-
-            foreach (var block in blocks)
-            {
-                await ProcessBlockAsync(block);
-                LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height + 1); // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
-                Logger.Logger.LogInfo($"Successfully scanned Block Height {block.Height}. Transaction Count: {block.Transactions.Count()}");
-            }
-
         }
 
         private async Task ProcessBlockAsync(VerboseBlockInfo block)
