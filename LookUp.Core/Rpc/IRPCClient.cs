@@ -9,8 +9,6 @@ namespace LookUp.Core.Rpc
         Network Network { get; }
         RPCCredentialString CredentialString { get; }
 
-        Task<uint256> GetBestBlockHashAsync(CancellationToken cancellationToken = default);
-
         Task<uint256> GetBlockHashAsync(int height, CancellationToken cancellationToken = default);
 
         Task StopAsync(CancellationToken cancellationToken = default);

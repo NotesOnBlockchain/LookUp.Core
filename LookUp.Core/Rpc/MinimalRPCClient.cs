@@ -17,11 +17,6 @@ namespace LookUp.Core.Rpc
 
         public RPCCredentialString CredentialString => Rpc.CredentialString;
 
-        public virtual async Task<uint256> GetBestBlockHashAsync(CancellationToken cancellationToken = default)
-        {
-            return await Rpc.GetBestBlockHashAsync(cancellationToken).ConfigureAwait(false);
-        }
-
         public virtual async Task<BlockchainInfo> GetBlockchainInfoAsync(CancellationToken cancellationToken = default)
         {
             return await Rpc.GetBlockchainInfoAsync(cancellationToken).ConfigureAwait(false);
