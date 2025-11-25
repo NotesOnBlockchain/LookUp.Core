@@ -29,7 +29,8 @@ namespace LookUp.Helpers
                  "6f7264",       // "ord"
                  "75736474",     // "usdt" in ascii
                  "4f55543a",
-                 "636f6e73"
+                 "636f6e73",
+                 "425243323050"  // BRC20PROG
             };
 
             if (bannedPrefixes.Any(instance.hex.ToLowerInvariant().StartsWith))
@@ -52,6 +53,25 @@ namespace LookUp.Helpers
 
             // 5. Length sanity check
             if (message.Length < 3 || message.Length > 80)
+                return false;
+
+            if (message.Equals("BRC20PROG"))
+                return false;
+
+            string[] bannedMessageParts =
+            {
+                ":to:USDT",
+                "to:USDC(BASE)",
+                ":to:TRX",
+                "USDT(ERC20)",
+                "USDT(TRON)",
+                "USDT(SOL)",
+                "USDT(BSC)",
+                "BRC20PROG",
+                "=:tr:"
+            };
+
+            if (bannedMessageParts.Any(message.Contains))
                 return false;
 
             return true;
