@@ -5,6 +5,7 @@ namespace LookUp.Logger
     public static class Logger
     {
         private static string FilePath { get; set; } = "Logs.txt";
+        private static object FileLock = new object();
         public static void Initialize(string filePath)
         {
             SetFilePath(filePath);
@@ -22,9 +23,13 @@ namespace LookUp.Logger
             messageBuilder.Append($"{DateTime.UtcNow.ToLocalTime():yyyy-MM-dd HH:mm:ss.fff} [{logLevel.ToString().ToUpperInvariant()}] [{Environment.CurrentManagedThreadId}]\t");
 
             messageBuilder.Append(message);
+            messageBuilder.Append('\n');
 
             string finalMessage = messageBuilder.ToString();
-            File.AppendAllText(FilePath, finalMessage);
+            lock (FileLock) 
+            {
+                File.AppendAllText(FilePath, finalMessage);
+            }
         }
 
         public static void LogInfo(string message) => Log(message, LogLevel.Info);
