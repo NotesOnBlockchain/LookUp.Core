@@ -63,12 +63,16 @@ namespace LookUp.Helpers
                 ":to:USDT",
                 "to:USDC(BASE)",
                 ":to:TRX",
+                "to:BNB(BSC)",
                 "USDT(ERC20)",
                 "USDT(TRON)",
                 "USDT(SOL)",
                 "USDT(BSC)",
                 "BRC20PROG",
-                "=:tr:"
+                "=:tr:",
+                "TRON.USDT",
+                "TRON.USDC",
+                "SYMB:"
             };
 
             if (bannedMessageParts.Any(message.Contains))
