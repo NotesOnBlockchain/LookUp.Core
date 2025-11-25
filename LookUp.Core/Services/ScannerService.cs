@@ -1,5 +1,6 @@
 ﻿using LookUp.Core.Rpc;
 using LookUp.Core.Rpc.Models;
+using LookUp.Helpers;
 using LookUp.Models;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.LastScannedBlockHeight;
@@ -77,18 +78,10 @@ namespace LookUp.Scanner.Services
                 .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
                 .ToArray();
 
-            // Check if the bytes fall between the first printable ASCII char and the last printable char.
-            bool isLikelyText = bytes.All(b => b >= 0x20 && b <= 0x7E);
-
-            if (!isLikelyText)
+            if (HexChecker.FilterOutMessages((bytes, hex), out string? message) && message is not null)
             {
-                return;
+                await ScanChannel.MessageChannel.Writer.WriteAsync(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
             }
-
-            // Convert bytes to string and save to DB
-            string message = Encoding.UTF8.GetString(bytes);
-
-            await ScanChannel.MessageChannel.Writer.WriteAsync(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
         }
     }
 }

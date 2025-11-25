@@ -1,0 +1,60 @@
+﻿using NBitcoin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace LookUp.Helpers
+{
+    public static class HexChecker
+    {
+        public static bool FilterOutMessages((byte[] bytes, string hex) instance, out string? message)
+        {
+            message = null;
+            try
+            {
+                message = Encoding.UTF8.GetString(instance.bytes);
+            }
+            catch
+            {
+                return false;
+            }
+
+            // 2. Block known protocol prefixes
+            string[] bannedPrefixes =
+            {
+                 "6f6d6e69",     // "omni"
+                 "434e5452",     // "CNTR"
+                 "746f6b656e",   // "token"
+                 "6f7264",       // "ord"
+                 "75736474",     // "usdt" in ascii
+                 "4f55543a",
+                 "636f6e73"
+            };
+
+            if (bannedPrefixes.Any(instance.hex.ToLowerInvariant().StartsWith))
+                return false;
+
+            // 3. Require human-readable ratio
+            int letters = message.Count(char.IsLetter);
+            if (letters < message.Length * 0.4) // At least 40% is char
+                return false;
+
+            // 4. Allowed characters only
+            bool allowed = message.All(c =>
+                char.IsLetterOrDigit(c) ||
+                char.IsWhiteSpace(c) ||
+                ".,!?;:-_+=()[]{}\"'@#$%^&*/\\|<>".Contains(c)
+            );
+
+            if (!allowed)  
+                return false;
+
+            // 5. Length sanity check
+            if (message.Length < 3 || message.Length > 80)
+                return false;
+
+            return true;
+        }
+    }
+}
