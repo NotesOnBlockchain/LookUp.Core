@@ -4,6 +4,7 @@ using LookUp.Models;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.LastScannedBlockHeight;
 using NBitcoin;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace LookUp.Scanner.Services
@@ -34,6 +35,13 @@ namespace LookUp.Scanner.Services
 
                 if (tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
+                    for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight; height++)
+                    {
+                        VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
+
+                        await ProcessBlockAsync(block);
+                    }
+                    /*
                     var blockHashes = await FetchBlockHashesAsnyc(tipHeight, stoppingToken);
                     var unprocessedBlockHashes = blockHashes.GetRange(LastScannedBlockHeight.BlockHeight, blockHashes.Count - LastScannedBlockHeight.BlockHeight);
 
@@ -48,7 +56,7 @@ namespace LookUp.Scanner.Services
                     foreach (var batch in batches)
                     {
                         await ProcessBatchOfBlockHashes(batch, stoppingToken);
-                    }
+                    }*/
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
@@ -96,12 +104,16 @@ namespace LookUp.Scanner.Services
 
         private async Task ProcessBlockAsync(VerboseBlockInfo block)
         {
-            var tasks = Parallel.ForEach(block.Transactions,
-                new ParallelOptions { MaxDegreeOfParallelism = 40 },
-                tx => ProcessTransaction(tx));
+            foreach (var tx in block.Transactions) 
+            {
+                await ProcessTransaction(tx);
+            }
+
+            LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height + 1); // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
+            Logger.Logger.LogInfo($"Successfully scanned Block Height {block.Height}. Transaction Count: {block.Transactions.Count()}");
         }
 
-        private void ProcessTransaction(VerboseTransactionInfo tx)
+        private async Task ProcessTransaction(VerboseTransactionInfo tx)
         {
             var opReturnOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey.ExtractScriptCode(-1).ToString().Contains("OP_RETURN"));
 
@@ -130,7 +142,8 @@ namespace LookUp.Scanner.Services
 
             // Convert bytes to string and save to DB
             string message = Encoding.UTF8.GetString(bytes);
-            ScanChannel.MessageChannel.Writer.TryWrite(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
+
+            await ScanChannel.MessageChannel.Writer.WriteAsync(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
         }
     }
 }

@@ -22,5 +22,7 @@ namespace LookUp.Core.Rpc
         Task SendBatchAsync(CancellationToken cancellationToken = default);
 
         Task<VerboseBlockInfo> GetVerboseBlockAsync(uint256 blockId, CancellationToken cancellationToken = default);
+
+        Task<VerboseBlockInfo> GetBlockByHeightAsync(int height, CancellationToken cancellationToken = default);
     }
 }

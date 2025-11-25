@@ -52,5 +52,14 @@ namespace LookUp.Core.Rpc
         {
             return await Rpc.GetBlockHashAsync(height, cancellationToken).ConfigureAwait(false);
         }
+
+        public async Task<VerboseBlockInfo> GetBlockByHeightAsync(int height, CancellationToken cancellationToken = default)
+        {
+            var blockHash = await GetBlockHashAsync(height, cancellationToken);
+
+            VerboseBlockInfo block = await GetVerboseBlockAsync(blockHash, cancellationToken);
+
+            return block;
+        }
     }
 }
