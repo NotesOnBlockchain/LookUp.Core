@@ -71,6 +71,11 @@ namespace LookUp.Scanner.Services
             var script = opReturnOutput.ScriptPubKey.ExtractScriptCode(-1);
             var parts = script.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
+            if (parts.Length < 2) 
+            {
+                return;
+            }
+
             string hex = parts[1];
 
             // Convert hex to byte[]
