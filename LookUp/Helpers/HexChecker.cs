@@ -8,6 +8,35 @@ namespace LookUp.Helpers
 {
     public static class HexChecker
     {
+        public static readonly string[] BannedHexPrefixes =
+        {
+            "6f6d6e69",     // "omni"
+            "434e5452",     // "CNTR"
+            "746f6b656e",   // "token"
+            "6f7264",       // "ord"
+            "75736474",     // "usdt" in ascii
+            "4f55543a",
+            "636f6e73",
+            "425243323050"  // BRC20PROG
+        };
+
+        public static readonly string[] BannedMessageParts =
+        {
+            ":to:USDT",
+            "to:USDC(BASE)",
+            ":to:TRX",
+            "to:BNB(BSC)",
+            "USDT(ERC20)",
+            "USDT(TRON)",
+            "USDT(SOL)",
+            "USDT(BSC)",
+            "BRC20PROG",
+            "=:tr:",
+            "TRON.USDT",
+            "TRON.USDC",
+            "SYMB:"
+        };
+
         public static bool FilterOutMessages((byte[] bytes, string hex) instance, out string? message)
         {
             message = null;
@@ -21,24 +50,12 @@ namespace LookUp.Helpers
             }
 
             // 2. Block known protocol prefixes
-            string[] bannedPrefixes =
-            {
-                 "6f6d6e69",     // "omni"
-                 "434e5452",     // "CNTR"
-                 "746f6b656e",   // "token"
-                 "6f7264",       // "ord"
-                 "75736474",     // "usdt" in ascii
-                 "4f55543a",
-                 "636f6e73",
-                 "425243323050"  // BRC20PROG
-            };
-
-            if (bannedPrefixes.Any(instance.hex.ToLowerInvariant().StartsWith))
+            if (BannedHexPrefixes.Any(instance.hex.ToLowerInvariant().StartsWith))
                 return false;
 
             // 3. Require human-readable ratio
             int letters = message.Count(char.IsLetter);
-            if (letters < message.Length * 0.4) // At least 40% is char
+            if (letters < message.Length * 0.4) // At least 40% is a letter
                 return false;
 
             // 4. Allowed characters only
@@ -58,24 +75,7 @@ namespace LookUp.Helpers
             if (message.Equals("BRC20PROG"))
                 return false;
 
-            string[] bannedMessageParts =
-            {
-                ":to:USDT",
-                "to:USDC(BASE)",
-                ":to:TRX",
-                "to:BNB(BSC)",
-                "USDT(ERC20)",
-                "USDT(TRON)",
-                "USDT(SOL)",
-                "USDT(BSC)",
-                "BRC20PROG",
-                "=:tr:",
-                "TRON.USDT",
-                "TRON.USDC",
-                "SYMB:"
-            };
-
-            if (bannedMessageParts.Any(message.Contains))
+            if (BannedMessageParts.Any(message.Contains))
                 return false;
 
             return true;
