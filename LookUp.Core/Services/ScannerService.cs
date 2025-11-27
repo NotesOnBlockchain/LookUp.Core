@@ -36,7 +36,7 @@ namespace LookUp.Scanner.Services
 
                 if (tipHeight > LastScannedBlockHeight.BlockHeight)
                 {
-                    for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight; height++)
+                    for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight + 1; height++)
                     {
                         VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
 
