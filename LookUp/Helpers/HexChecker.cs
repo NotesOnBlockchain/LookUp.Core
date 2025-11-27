@@ -1,8 +1,4 @@
-﻿using NBitcoin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace LookUp.Helpers
 {
@@ -23,15 +19,18 @@ namespace LookUp.Helpers
         public static readonly string[] BannedMessageParts =
         {
             ":to:USDT",
-            "to:USDC(BASE)",
+            "to:USDC",
             ":to:TRX",
-            "to:BNB(BSC)",
+            ":to:XRP",
+            "to:BNB",
+            "to:LTC",
             "USDT(ERC20)",
             "USDT(TRON)",
             "USDT(SOL)",
             "USDT(BSC)",
             "BRC20PROG",
             "=:tr:",
+            "=:l:ltc",
             "TRON.USDT",
             "TRON.USDC",
             "SYMB:"
