@@ -15,62 +15,62 @@
                 Search
             </button>
         </div>
+    </div>
 
-        <div class="cards-container">
-            @if (searchResult.Count > 0)
+    <div class="cards-container">
+        @if (searchResult.Count > 0)
+        {
+            @foreach (var message in searchResult)
             {
-                @foreach (var message in searchResult)
-                {
-                    <div class="message-card">
-                        <div class="card-header">
-                            <h3>Transaction Details</h3>
+                <div class="message-card">
+                    <div class="card-header">
+                        <h3>Transaction Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-row">
+                            <label>Transaction ID:</label>
+                            <span class="value">@message.TransactionID</span>
                         </div>
-                        <div class="card-body">
-                            <div class="card-row">
-                                <label>Transaction ID:</label>
-                                <span class="value">@message.TransactionID</span>
-                            </div>
-                            <div class="card-row">
-                                <label>Message:</label>
-                                <span class="value">@message.Message</span>
-                            </div>
-                            <div class="card-row">
-                                <label>Hex:</label>
-                                <span class="value">@message.Hex</span>
-                            </div>
-                            <div class="card-row">
-                                <label>Block Hash:</label>
-                                <span class="value">@message.BlockHash</span>
-                            </div>
-                            <div class="card-row">
-                                <label>Block Mined At:</label>
-                                <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
-                            </div>
+                        <div class="card-row">
+                            <label>Message:</label>
+                            <span class="value">@message.Message</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Hex:</label>
+                            <span class="value">@message.Hex</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Block Hash:</label>
+                            <span class="value">@message.BlockHash</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Block Mined At:</label>
+                            <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
                         </div>
                     </div>
-                }
+                </div>
             }
-            else if (searchResult.Count == 0 && isRequested)
-            {
-                <h3>No Results...</h3>
-            }
-            else
-            {
-                <!-- EMPTY FOR A REASON -->
-            }
-        </div>
+        }
+        else if (searchResult.Count == 0 && isRequested)
+        {
+            <h3>No Results...</h3>
+        }
+        else
+        {
+            <!-- EMPTY FOR A REASON -->
+        }
     </div>
 </div>
 
 <style>
     .search-container {
-        max-width: 600px;
         margin: 0 auto;
         padding: 20px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .search-form {
+        max-width: 600px;
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
