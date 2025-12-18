@@ -9,6 +9,7 @@ using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
 using LookUp.Scanner.Middlewares;
 using LookUp.Scanner.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
@@ -56,6 +57,17 @@ public class Startup
         services.AddHostedService<ScannerService>();
         services.AddHostedService<DataBaseWriterService>();
 
+        services.AddCors(options =>
+        {
+            options.AddPolicy("ScannerPolicy", policy =>
+            {
+                policy
+                    .WithOrigins("http://test.messagesonblockchain.com/")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
 
         services.AddMemoryCache();
         services.AddMvc();
@@ -74,5 +86,12 @@ public class Startup
         app.UseMiddleware<ApiKeyMiddleware>();
         app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
+
+        app.UseCors("ScannerPolicy");
     }
 }
