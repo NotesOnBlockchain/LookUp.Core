@@ -149,6 +149,13 @@
             var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/scanner/search?query={Uri.EscapeDataString(searchBarContent)}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             var response = await HttpClient!.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"Search failed. Status: {response.StatusCode}, Body: {body}");
+            }
             
             searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>() ?? new List<MessageModel>();
         }
