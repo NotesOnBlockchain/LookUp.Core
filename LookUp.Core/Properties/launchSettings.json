@@ -1,13 +1,13 @@
 {
   "profiles": {
-    "https": {
+    "http": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:37127/"
+      "applicationUrl": "http://localhost:37127/"
     },
     "IIS Express": {
       "commandName": "IISExpress",

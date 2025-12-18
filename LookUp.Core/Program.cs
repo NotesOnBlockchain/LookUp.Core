@@ -20,6 +20,6 @@ namespace LookUp.Core
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => webBuilder
                 .UseStartup<Startup>()
-                .UseUrls("https://localhost:37127/"));
+                .UseUrls("http://localhost:37127/"));
     }
 }
