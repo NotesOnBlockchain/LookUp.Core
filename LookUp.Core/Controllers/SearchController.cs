@@ -17,7 +17,7 @@ namespace LookUp.Scanner.Controllers
         private MessageRepository MessageRepository { get; }
         private IMemoryCache Cache { get; }
 
-        [HttpGet("/search")]
+        [HttpGet("/scanner/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {
             var cacheKey = $"{query.Trim().ToLower()}";
