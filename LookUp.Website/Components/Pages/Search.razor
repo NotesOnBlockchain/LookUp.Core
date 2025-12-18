@@ -139,8 +139,14 @@
     {
         try
         {
+            string searchQuery = Uri.EscapeDataString(searchBarContent);
+            if (string.IsNullOrEmpty(searchQuery))
+            {
+                return;
+            }
+
             isRequested = true;
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={Uri.EscapeDataString(searchBarContent)}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/scanner/search?query={Uri.EscapeDataString(searchBarContent)}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             var response = await HttpClient!.SendAsync(request);
             
