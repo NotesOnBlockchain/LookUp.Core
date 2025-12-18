@@ -17,7 +17,6 @@ namespace LookUp.Scanner.Controllers
         private MessageRepository MessageRepository { get; }
         private IMemoryCache Cache { get; }
 
-        [EnableRateLimiting("SearchEndpointLimiter")]
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {

@@ -61,16 +61,6 @@ public class Startup
         services.AddMvc();
         services.AddControllers();
 
-        services.AddRateLimiter(options =>
-        {
-            options.AddFixedWindowLimiter("SearchEndpointLimiter", conf =>
-            {
-                conf.Window = TimeSpan.FromSeconds(10);
-                conf.PermitLimit = 5;       // 5 request every 10 seconds
-                conf.QueueLimit = 0;
-            });
-        });
-
         services.AddStartupTask<StartupTask>();
 
         services.AddEndpointsApiExplorer();
