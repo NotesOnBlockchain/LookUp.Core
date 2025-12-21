@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace LookUp.Helpers
 {
@@ -18,25 +19,41 @@ namespace LookUp.Helpers
 
         public static readonly string[] BannedMessageParts =
         {
-            ":to:USDT",
+            "to:USDT",
             "to:USDC",
-            ":to:TRX",
-            ":to:XRP",
+            "to:TRX",
+            "to:XRP",
             "to:BNB",
             "to:LTC",
+            "to:ETH",
+            "to:ASTER(BSC)",
+            "to:ZEC(BSC)",
+            "to:ASTER(BSC)",
+            "to:PAXG(ERC20)",
+            "to:AVAX(C-Chain)",
+            "to:DAI(BSC)",
+            "to:XAUT(ERC20)",
+            "to:BTCB",
+            "to:GALA(ERC20)",
+            "from:8900POL(POL):",
             "USDT(ERC20)",
             "USDT(TRON)",
             "USDT(SOL)",
             "USDT(BSC)",
             "BRC20PROG",
-            "=:tr:",
+            "=:tr",
             "=:l:ltc",
             "TRON.USDT",
             "TRON.USDC",
-            "SYMB:"
+            "SYMB",
+            "ETH.USDT",
+            "BSC.USDT",
+            "ETH.USDC",
+            "to:SOL",
+            "\"p\":\"brc-20\",\"op\":\"mint\""
         };
 
-        public static bool FilterOutMessages((byte[] bytes, string hex) instance, out string? message)
+        public static bool FilterOutMessages((byte[] bytes, string hex) instance, [NotNullWhen(true)] out string? message)
         {
             message = null;
             try
