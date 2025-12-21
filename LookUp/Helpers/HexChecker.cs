@@ -53,12 +53,18 @@ namespace LookUp.Helpers
             "\"p\":\"brc-20\",\"op\":\"mint\""
         };
 
-        public static bool FilterOutMessages((byte[] bytes, string hex) instance, [NotNullWhen(true)] out string? message)
+        public static bool FilterOutMessages(string hex, [NotNullWhen(true)] out string? message)
         {
             message = null;
+
+            // Convert hex to byte[]
+            byte[] bytes = Enumerable.Range(0, hex.Length / 2)
+                .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
+                .ToArray();
+
             try
             {
-                message = Encoding.UTF8.GetString(instance.bytes);
+                message = Encoding.UTF8.GetString(bytes);
             }
             catch
             {
@@ -66,7 +72,7 @@ namespace LookUp.Helpers
             }
 
             // 2. Block known protocol prefixes
-            if (BannedHexPrefixes.Any(instance.hex.ToLowerInvariant().StartsWith))
+            if (BannedHexPrefixes.Any(hex.ToLowerInvariant().StartsWith))
                 return false;
 
             // 3. Require human-readable ratio

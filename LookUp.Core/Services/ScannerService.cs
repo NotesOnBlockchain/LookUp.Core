@@ -78,12 +78,7 @@ namespace LookUp.Scanner.Services
 
             string hex = parts[1];
 
-            // Convert hex to byte[]
-            byte[] bytes = Enumerable.Range(0, hex.Length / 2)
-                .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
-                .ToArray();
-
-            if (HexChecker.FilterOutMessages((bytes, hex), out string? message) && message is not null)
+            if (HexChecker.FilterOutMessages(hex, out string? message) && message is not null)
             {
                 await ScanChannel.MessageChannel.Writer.WriteAsync(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
             }
