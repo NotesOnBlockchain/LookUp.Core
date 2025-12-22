@@ -28,7 +28,6 @@ namespace LookUp.Helpers
             "to:ETH",
             "to:ASTER(BSC)",
             "to:ZEC(BSC)",
-            "to:ASTER(BSC)",
             "to:PAXG(ERC20)",
             "to:AVAX(C-Chain)",
             "to:DAI(BSC)",
@@ -40,7 +39,6 @@ namespace LookUp.Helpers
             "USDT(TRON)",
             "USDT(SOL)",
             "USDT(BSC)",
-            "BRC20PROG",
             "=:tr",
             "=:l:ltc",
             "TRON.USDT",
@@ -57,7 +55,11 @@ namespace LookUp.Helpers
         {
             message = null;
 
-            // Convert hex to byte[]
+            // 1. Block known protocol prefixes
+            if (BannedHexPrefixes.Any(hex.ToLowerInvariant().StartsWith))
+                return false;
+
+            // 2. Convert hex to byte[]
             byte[] bytes = Enumerable.Range(0, hex.Length / 2)
                 .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
                 .ToArray();
@@ -71,16 +73,16 @@ namespace LookUp.Helpers
                 return false;
             }
 
-            // 2. Block known protocol prefixes
-            if (BannedHexPrefixes.Any(hex.ToLowerInvariant().StartsWith))
+            // 3. Filter out shitcoin contracts.
+            if (BannedMessageParts.Any(message.Contains))
                 return false;
 
-            // 3. Require human-readable ratio
+            // 4. Require human-readable ratio
             int letters = message.Count(char.IsLetter);
             if (letters < message.Length * 0.4) // At least 40% is a letter
                 return false;
 
-            // 4. Allowed characters only
+            // 5. Allowed characters only
             bool allowed = message.All(c =>
                 char.IsLetterOrDigit(c) ||
                 char.IsWhiteSpace(c) ||
@@ -90,15 +92,14 @@ namespace LookUp.Helpers
             if (!allowed)  
                 return false;
 
-            // 5. Length sanity check
+            // 6. Length sanity check
             if (message.Length < 3 || message.Length > 80)
                 return false;
 
             if (message.Equals("BRC20PROG"))
                 return false;
 
-            if (BannedMessageParts.Any(message.Contains))
-                return false;
+            
 
             return true;
         }
