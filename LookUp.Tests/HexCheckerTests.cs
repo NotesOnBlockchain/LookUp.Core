@@ -21,5 +21,17 @@ namespace LookUp.Tests
             bool doContains = HexChecker.BannedMessageParts.Any(message.Contains);    // Message contains the smart contract part.
             Assert.True(doContains);
         }
+
+        [Theory]
+        [InlineData("4661737420637265646974")]      // "Fast credit"
+        [InlineData("48656C6C6F20776F726C6421")]    // "Hello world!"
+        [InlineData("4C6F72656D20697073756D20646F6C6F722073697420616D657420636F6E7365637465747572")]    // "Lorem ipsum dolor sit amet consectetur"
+        public void ValidMessages(string hex)
+        {
+            bool isValid = HexChecker.FilterOutMessages(hex, out string? message);
+            
+            Assert.True(isValid);
+            Assert.NotNull(message);
+        }
     }
 }
