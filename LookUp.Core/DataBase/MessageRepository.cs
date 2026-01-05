@@ -52,6 +52,8 @@ namespace LookUp.Scanner.DataBase
                 model.BlockHash.Equals(query) ||
                 (dayStart != null && model.BlockMinedAt >= dayStart && dayEnd != null && model.BlockMinedAt < dayEnd))
                 .Distinct()
+                .OrderByDescending(model => model.BlockMinedAt)
+                .Take(20)
                 .ToListAsync();
             
         }
