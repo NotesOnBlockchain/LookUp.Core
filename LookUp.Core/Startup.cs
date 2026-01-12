@@ -57,18 +57,6 @@ public class Startup
         services.AddHostedService<ScannerService>();
         services.AddHostedService<DataBaseWriterService>();
 
-        services.AddCors(options =>
-        {
-            options.AddPolicy("ScannerPolicy", policy =>
-            {
-                policy
-                    .WithOrigins("http://test.messagesonblockchain.com/")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        });
-
         services.AddMemoryCache();
         services.AddMvc();
         services.AddControllers();
