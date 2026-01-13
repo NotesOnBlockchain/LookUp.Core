@@ -1,6 +1,8 @@
 # LookUp — Bitcoin Message Scanner
 
-**LookUp** is a free and open-source .NET server that connects to your local **Bitcoin Knots** node via RPC, scans blockchain transactions for embedded messages (stored in `OP_RETURN` scripts), and saves them into a **PostgreSQL** database.  
+**LookUp** is a free and open-source .NET server that connects to your local **Bitcoin Knots** node via RPC, scans blockchain transactions for embedded messages (stored in `OP_RETURN` scripts), and saves them into a **PostgreSQL** database.
+
+Check out the official website of the project [here](https://notesontheblockchain.com/)!  
 
 # Build From Source Code
 
