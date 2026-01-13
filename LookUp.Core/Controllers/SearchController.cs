@@ -1,8 +1,8 @@
 ﻿using LookUp.Models;
 using LookUp.Scanner.DataBase;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Memory;
+using NBitcoin.Protocol;
 
 namespace LookUp.Scanner.Controllers
 {
@@ -20,6 +20,9 @@ namespace LookUp.Scanner.Controllers
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {
+            if (query.Length > 250)
+                return Ok(Enumerable.Empty<Message>());
+
             var cacheKey = $"{query.Trim().ToLower()}";
 
             if (Cache.TryGetValue(cacheKey, out List<MessageModel>? cachedResult)) 
