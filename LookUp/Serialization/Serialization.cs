@@ -1,7 +1,6 @@
 ﻿using LookUp.Models;
 using LookUp.Serialization;
 using NBitcoin;
-using NBitcoin.DataEncoders;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -20,9 +19,6 @@ namespace LookUp.Serialization
             WriteIndented = true,
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
-
-        public static string ToString<T>(T obj, Encoder<T> encoder) =>
-            encoder(obj).ToJsonString();
 
         public static string ToReadableString<T>(T obj, Encoder<T> encoder) =>
             encoder(obj).ToJsonString(Indented);
@@ -45,26 +41,8 @@ namespace LookUp.Serialization
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonNode Guid(Guid value) => JsonValue.Create(value);
 
-        private static JsonNode Hexadecimal(byte[] bytes) =>
-        String(Convert.ToHexString(bytes));
-
         public static JsonNode Network(Network network) =>
             String(network.Name);
-
-        public static JsonNode UInt256(uint256 n) =>
-            String(n.ToString());
-
-        public static JsonNode Outpoint(OutPoint outPoint) =>
-            Hexadecimal(outPoint.ToBytes());
-
-        private static JsonNode Script(Script script) =>
-            String(script.ToString());
-
-        public static JsonNode MoneySatoshis(Money money) =>
-            Int64(money.Satoshi);
-
-        public static JsonNode MoneyBitcoins(Money money) =>
-            String(money.ToString(fplus: false, trimExcessZero: true));
 
 
         public static JsonNode Message(MessageModel message) =>
@@ -116,21 +94,6 @@ namespace LookUp.Serialization
                     return Result<T, string>.Fail(e.Message);
                 }
             };
-        public static Decoder<Config.Config> Config(string filePath) =>
-            Object(get => new Config.Config(filePath, get.Required("LookUp-APIKEY", String))
-            {
-                Network = get.Required("Network", Network),
-                MainNetBitcoinRpcUri = get.Required("MainNetBitcoinRpcUri", String),
-                TestNetBitcoinRpcUri = get.Required("TestNetBitcoinRpcUri", String),
-                RegTestBitcoinRpcUri = get.Required("RegTestBitcoinRpcUri", String),
-                BitcoinRpcConnectionString = get.Required("BitcoinRpcConnectionString", String)
-            });
-
-        public static Decoder<Config.WebsiteConfig> WebsiteConfig(string filePath) =>
-            Object(get => new Config.WebsiteConfig(filePath, get.Required("LookUp-APIKEY", String))
-            {
-                BandendUri = get.Required("BackendUri" , String)
-            });
 
         public static Decoder<T> Object<T>(Func<Getters, T> builder) =>
             value =>
@@ -164,9 +127,6 @@ namespace LookUp.Serialization
         public static Decoder<long> Int64 =>
         value => Integral("a long integer", long.TryParse, long.MinValue, long.MaxValue, Convert.ToInt64, value);
 
-        public static readonly Decoder<uint256> UInt256 =
-            String.Map(s => new uint256(s)).Catch();
-
         public static Decoder<DateTimeOffset> DateTimeOffset =
             String.Map(System.DateTimeOffset.Parse);
 
@@ -183,44 +143,6 @@ namespace LookUp.Serialization
                     ? Succeed(network)
                     : Fail<Network>($"'{name}' is not a valid network.");
             });
-
-        public static readonly Decoder<byte[]> Hexadecimal =
-        String.Map(Encoders.Hex.DecodeData).Catch();
-
-        public static readonly Decoder<Money> MoneySatoshis =
-            Int64.Map(Money.Satoshis);
-
-        public static readonly Decoder<Money> MoneyBitcoins =
-            String.Map(Money.Parse).Catch();
-
-        public static readonly Decoder<FeeRate> FeeRate =
-            MoneySatoshis.Map(m => new FeeRate(m)).Catch();
-
-        public static readonly Decoder<WitScript> WitScript =
-            Hexadecimal.Map(hex => new WitScript(hex)).Catch();
-
-        public static readonly Decoder<OutPoint> OutPoint =
-            Hexadecimal.Map(bytes =>
-            {
-                var op = new OutPoint();
-                op.FromBytes(bytes);
-                return op;
-            }).Catch();
-
-        public static readonly Decoder<Script> Script =
-            String.Map(s => new Script(s)).Catch();
-
-        public static readonly Decoder<TxOut> TxOut =
-            Object(get => new TxOut(
-                get.Required("Value", MoneySatoshis),
-                get.Required("ScriptPubKey", Script)
-            ));
-
-        public static readonly Decoder<Coin> Coin =
-            Object(get => new Coin(
-                get.Required("Outpoint", OutPoint),
-                get.Required("TxOut", TxOut)
-            ));
 
         private static Result<T, string> Integral<T>(
         string name,
@@ -263,14 +185,6 @@ namespace LookUp.Serialization
                         Errors.Add(e);
                         return default!;
                     });
-
-            public T? Optional<T>(string fileName, Decoder<T> decoder) =>
-                Field(fileName, decoder)(value).Match(
-                    v => v,
-                    _ => (T?)(object?)null);
-
-            public T Optional<T>(string fileName, Decoder<T> decoder, T def) where T : struct =>
-                Field(fileName, decoder)(value).Match(v => v, _ => def);
         }
 
         private delegate bool TryParse<T>(string input, [NotNullWhen(true)] out T? result);
@@ -349,37 +263,6 @@ namespace LookUp.Serialization
 
     public static class JsonDecoder
     {
-        public static Func<string, Result<T, string>> FromString<T>(Decoder<T> decoder) =>
-            value =>
-            {
-                try
-                {
-                    var jsonDocument = JsonDocument.Parse(value);
-                    return decoder(jsonDocument.RootElement);
-                }
-                catch (JsonException e)
-                {
-                    return Result<T, string>.Fail(e.Message);
-                }
-            };
-
-        internal static T? FromString<T>(string json, Decoder<T> decoder) =>
-            FromString(decoder)(json).AsNullable();
-
-        public static Func<Stream, Task<Result<T, string>>> FromStreamAsync<T>(Decoder<T> decoder) =>
-            async value =>
-            {
-                try
-                {
-                    var jsonDocument = await JsonDocument.ParseAsync(value).ConfigureAwait(false);
-                    return decoder(jsonDocument.RootElement);
-                }
-                catch (JsonException e)
-                {
-                    return Result<T, string>.Fail(e.Message);
-                }
-            };
-
         public static Func<Stream, Result<T, string>> FromStream<T>(Decoder<T> decoder) =>
             value =>
             {
