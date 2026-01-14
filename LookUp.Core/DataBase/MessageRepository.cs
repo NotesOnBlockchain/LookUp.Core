@@ -46,7 +46,7 @@ namespace LookUp.Scanner.DataBase
             }
 
             return await _dBContext.Messages.Where(model =>
-                model.TransactionID.Equals(query, StringComparison.CurrentCultureIgnoreCase) ||
+                model.TransactionID.Equals(query) ||
                 EF.Functions.ILike(model.Message, $"%{query}%") ||
                 model.Hex.Equals(query) ||
                 model.BlockHash.Equals(query) ||
