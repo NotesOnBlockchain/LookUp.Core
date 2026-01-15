@@ -187,7 +187,7 @@
             isRequested = true;
             isLoading = true;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/scanner/search?query={Uri.EscapeDataString(searchBarContent)}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={Uri.EscapeDataString(searchBarContent)}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             var response = await HttpClient!.SendAsync(request);
 
