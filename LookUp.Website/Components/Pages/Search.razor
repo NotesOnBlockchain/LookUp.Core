@@ -187,15 +187,18 @@
             isRequested = true;
             isLoading = true;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={Uri.EscapeDataString(searchBarContent)}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={searchQuery}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
-            var response = await HttpClient!.SendAsync(request);
+            using var response = await HttpClient!.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
 
                 Console.WriteLine($"Search failed. Status: {response.StatusCode}, Body: {body}");
+
+                searchResult = new List<MessageModel>();
+                return;
             }
 
             searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>() ?? new List<MessageModel>();
@@ -203,12 +206,11 @@
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+            searchResult = new List<MessageModel>();
         }
         finally
         {
             isLoading = false;
         }
-
-        StateHasChanged();
     }
 }
