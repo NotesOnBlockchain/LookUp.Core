@@ -173,11 +173,16 @@
     private bool isRequested = false;
     private bool isLoading = false;
 
+    private CancellationTokenSource? _cts;
+
 
     private async Task SendSearchReq()
     {
         try
         {
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+
             string searchQuery = Uri.EscapeDataString(searchBarContent);
             if (string.IsNullOrEmpty(searchQuery))
             {
@@ -189,7 +194,7 @@
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={searchQuery}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
-            using var response = await HttpClient!.SendAsync(request);
+            using var response = await HttpClient!.SendAsync(request, _cts.Token);
 
             if (!response.IsSuccessStatusCode)
             {
