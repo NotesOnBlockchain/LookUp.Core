@@ -57,6 +57,10 @@
                 </div>
             }
         }
+        else if (isTooFewChars && isRequested)
+        {
+            <h3>Please enter at least 3 characters...</h3>
+        }
         else if (searchResult.Count == 0 && isRequested)
         {
             <h3>No Results...</h3>
@@ -172,6 +176,7 @@
     private List<MessageModel> searchResult = new List<MessageModel>();
     private bool isRequested = false;
     private bool isLoading = false;
+    private bool isTooFewChars = false;
 
     private CancellationTokenSource? _cts;
 
@@ -183,13 +188,14 @@
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
 
-            string searchQuery = Uri.EscapeDataString(searchBarContent);
-            if (string.IsNullOrEmpty(searchQuery))
-            {
-                return;
-            }
-
             isRequested = true;
+
+            isTooFewChars = searchBarContent.Length < 3 ? true : false;
+            if(isTooFewChars)
+                return;
+
+            string searchQuery = Uri.EscapeDataString(searchBarContent);
+
             isLoading = true;
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={searchQuery}");
