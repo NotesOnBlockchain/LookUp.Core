@@ -32,7 +32,6 @@ namespace LookUp.Scanner.Cache
             {
                 try
                 {
-                    Console.WriteLine($"New cache entry added! Key: {request}");
                     var result = await action(request);
                     responseTcs.SetResult(result);
                     return result;
@@ -49,8 +48,6 @@ namespace LookUp.Scanner.Cache
                     Logger.Logger.LogCritical($"Failed to get cached result. {ex}");
                 }
             }
-
-            Console.WriteLine($"Cache entry was found! Didn't call DB! KEy: {request}");
 
             return await responseTcs.Task;
         }
