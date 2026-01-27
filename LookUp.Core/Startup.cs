@@ -4,6 +4,7 @@ using LookUp.Core.Services;
 using LookUp.Helpers;
 using LookUp.Logger;
 using LookUp.Scanner;
+using LookUp.Scanner.Cache;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
@@ -58,6 +59,9 @@ public class Startup
         services.AddHostedService<DataBaseWriterService>();
 
         services.AddMemoryCache();
+
+        services.AddSingleton<IdempotencyCache>();
+
         services.AddMvc();
         services.AddControllers();
 
