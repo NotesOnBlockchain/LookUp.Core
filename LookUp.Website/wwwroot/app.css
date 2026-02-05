@@ -92,7 +92,8 @@ h1:focus {
 
     .home-container h1 {
         font-size: 2.5rem;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
+        margin-top: -10px;
         color: #4cc9f0;
         text-align: center;
         text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
