@@ -22,9 +22,11 @@ namespace LookUp.Scanner.Controllers
             if (query.Length > 200)
                 return Ok(Enumerable.Empty<Message>());
 
+            using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+
             var searchResult = await IdempotencyCache.GetCachedResultAsync(query,
                 MessageRepository.FindAsync,
-                CancellationToken.None);
+                cts.Token);
 
             return Ok(searchResult);
         }
