@@ -160,9 +160,15 @@ h1:focus {
 }
 
     .tech-stack ul {
+        display: flex; /* Aligns items side-by-side */
+        justify-content: center; /* Centers items horizontally */
+        flex-wrap: wrap; /* Allows items to wrap if the screen is too narrow */
+        /* Resetting default list styles so they don't interfere */
         list-style: none;
         padding: 0;
         margin: 0;
+        /* Optional: Controls the spacing between items */
+        gap: 20px;
     }
 
     .tech-stack li {
