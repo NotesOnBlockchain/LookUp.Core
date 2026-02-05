@@ -112,6 +112,7 @@ h1:focus {
     .home-container p {
         font-size: 1.1rem;
         color: #d1d1d1;
+        text-align: center;
     }
 
 .disclaimer {
