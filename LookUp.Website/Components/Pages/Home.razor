@@ -1,10 +1,12 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
+@inject WebsiteConfig Config
 
 <div class="home-container">
     <h1>Look Up - Blockchain Message Explorer</h1>
 
     <div class="cards-container">
-        @foreach (var message in messages)
+        @foreach (var message in ExampleMessages)
         {
             <div class="message-card">
                 <div class="card-header">
@@ -35,14 +37,223 @@
             </div>
         }
     </div>
+
+    <div class="home-container">
+        <h1>Find your message</h1>
+        <div class="search-container">
+            <div class="search-form">
+                <input type="text"
+                       @bind="searchBarContent"
+                       placeholder="Search by TxID, Message, Date..."
+                       class="search-input" />
+
+                <button @onclick="SendSearchReq" class="search-button" disabled="@isLoading">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <div class="cards-container">
+            @if (isLoading)
+            {
+                <div class="loading-container">
+                    <div class="spinner large"></div>
+                </div>
+            }
+            else if (searchResult.Count > 0)
+            {
+                @foreach (var message in searchResult)
+                {
+                    <div class="message-card">
+                        <div class="card-header">
+                            <h3>Transaction Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-row">
+                                <label>Transaction ID:</label>
+                                <span class="value">@message.TransactionID</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Message:</label>
+                                <span class="value">@message.Message</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Hex:</label>
+                                <span class="value">@message.Hex</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Block Hash:</label>
+                                <span class="value">@message.BlockHash</span>
+                            </div>
+                            <div class="card-row">
+                                <label>Block Mined At:</label>
+                                <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else if (isTooFewChars && isRequested)
+            {
+                <h3>Please enter at least 3 characters...</h3>
+            }
+            else if (searchResult.Count == 0 && isRequested)
+            {
+                <h3>No Results...</h3>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="home-container">
+    <h1>About Look Up</h1>
+
+    <p>It's a small project that scans the Bitcoin blockchain for human-readable messages in transactions.</p>
+    <p>This page lets you search and find for your messages on the blockchain via Message, Transaction ID, Hex or Date.</p>
+
+    <p style="font-family: sans-serif; font-size: 1.1rem;">
+        Check out the source code
+        <a href="https://github.com/NotesOnBlockchain/LookUp.Core" class="github-link" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.66-3.795-1.455-3.795-1.455-.54-1.38-1.335-1.755-1.335-1.755-1.095-.75.09-.735.09-.735 1.2.09 1.83 1.245 1.83 1.245 1.08 1.86 2.805 1.32 3.495 1.005.105-.78.42-1.32.765-1.62-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405 1.02 0 2.04.135 3 .405 2.28-1.545 3.285-1.23 3.285-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.285 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+            </svg>on GitHub here!
+        </a>
+    </p>
+
+    <div class="disclaimer">
+        <p>Disclaimer: Messages on the blockchain don't automatically become true or the truth. On important topics, please make your own research.</p>
+        <p>Engraving the truth onto the blockchain is easy and simple. Engraving lies is just as easy and simple.</p>
+    </div>
+
+    <h1>Technology Stack</h1>
+    <div class="tech-stack">
+        <ul>
+            <li>C#/.NET</li>
+            <li>Entity Framework</li>
+            <li>PostgreSQL</li>
+            <li>Blazor</li>
+            <li>HTML5/CSS3</li>
+        </ul>
+    </div>
 </div>
 
 <style>
-    
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 40px;
+        color: #555;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+        .spinner.large {
+            width: 40px;
+            height: 40px;
+            border-width: 4px;
+            border-top-color: #007acc;
+        }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .search-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .search-container {
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .search-form {
+        max-width: 600px;
+        display: flex;
+        gap: 10px;
+        margin: 0 auto 20px auto;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .search-button {
+        padding: 10px 20px;
+        background-color: #007acc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        .search-button:hover {
+            background-color: #005a9e;
+        }
+
+    .result-container {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border-left: 4px solid #007acc;
+    }
+
+        .result-container h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+    .error {
+        color: #d32f2f;
+        background-color: #ffebee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    .github-link {
+        color: wheat;
+        text-decoration: none;
+        font-weight: bold;
+        border-bottom: 2px solid #333; /* Stylish underline */
+        transition: color 0.2s ease;
+    }
+
+        .github-link:hover {
+            color: #0366d6; /* GitHub Blue on hover */
+            border-color: #0366d6;
+        }
 </style>
 
 @code {
-    private List<MessageModel> messages = new()
+    private List<MessageModel> ExampleMessages = new()
     {
         new MessageModel(
             new Guid(),
@@ -67,4 +278,57 @@
             new(2025, 12, 18, 14, 50, 24, TimeSpan.FromHours(1))
         )
     };
+
+    private string searchBarContent = string.Empty;
+    private List<MessageModel> searchResult = new List<MessageModel>();
+    private bool isRequested = false;
+    private bool isLoading = false;
+    private bool isTooFewChars = false;
+
+    private CancellationTokenSource? _cts;
+
+
+    private async Task SendSearchReq()
+    {
+        try
+        {
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+
+            isRequested = true;
+
+            isTooFewChars = searchBarContent.Length < 3 ? true : false;
+            if (isTooFewChars)
+                return;
+
+            string searchQuery = Uri.EscapeDataString(searchBarContent);
+
+            isLoading = true;
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={searchQuery}");
+            request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
+            using var response = await HttpClient!.SendAsync(request, _cts.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"Search failed. Status: {response.StatusCode}, Body: {body}");
+
+                searchResult = new List<MessageModel>();
+                return;
+            }
+
+            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>() ?? new List<MessageModel>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            searchResult = new List<MessageModel>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }
