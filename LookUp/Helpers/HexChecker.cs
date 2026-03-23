@@ -107,8 +107,6 @@ namespace LookUp.Helpers
             if (message.Equals("BRC20PROG"))
                 return false;
 
-            
-
             return true;
         }
     }
