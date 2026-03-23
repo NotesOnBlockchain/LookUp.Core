@@ -48,6 +48,14 @@ namespace LookUp.Helpers
             "BSC.USDT",
             "ETH.USDC",
             "to:SOL",
+            "to:S(Sonic):",
+            "to:TON",
+            "to:FET(ERC20)",
+            "to:TWT(BSC)",
+            "to:PEPE",
+            "to:HYPE(HyperEVM)",
+            "to:SUI",
+            "to:DEEP(SUI)",
             "\"p\":\"brc-20\",\"op\":\"mint\""
         };
 
