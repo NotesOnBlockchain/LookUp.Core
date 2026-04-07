@@ -87,7 +87,6 @@ h1:focus {
     line-height: 1.6;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #e6e6e6;
-    min-height: 97vh;
 }
 
     .home-container h1 {
