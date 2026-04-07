@@ -30,6 +30,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.MapGet("/activefilters", () =>
+{
+    return Results.Json(
+        HexChecker.BannedMessageParts,
+        new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+});
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
