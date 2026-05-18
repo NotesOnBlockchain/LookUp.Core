@@ -45,17 +45,37 @@ namespace LookUp.Scanner.DataBase
                 dayEnd = dayStart.Value.AddDays(1);
             }
 
-            return await _dBContext.Messages.Where(model =>
-                model.TransactionID.Equals(query) ||
-                EF.Functions.ILike(model.Message, $"%{query}%") ||
-                model.Hex.Equals(query) ||
-                model.BlockHash.Equals(query) ||
-                (dayStart != null && model.BlockMinedAt >= dayStart && dayEnd != null && model.BlockMinedAt < dayEnd))
-                .Distinct()
-                .OrderByDescending(model => model.BlockMinedAt)
+            // Each branch hits its own index
+            var byTransactionId = _dBContext.Messages
+                .Where(m => m.TransactionID == query);
+
+            var byHex = _dBContext.Messages
+                .Where(m => m.Hex == query);
+
+            var byBlockHash = _dBContext.Messages
+                .Where(m => m.BlockHash == query);
+
+            var byMessage = _dBContext.Messages
+                .Where(m => EF.Functions.ILike(m.Message, $"%{query}%"));
+
+            var combined = byTransactionId
+                .Union(byHex)
+                .Union(byBlockHash)
+                .Union(byMessage);
+
+            if (dayStart != null)
+            {
+                var byDate = _dBContext.Messages
+                    .Where(m => m.BlockMinedAt >= dayStart && m.BlockMinedAt < dayEnd);
+
+                combined = combined.Union(byDate);
+            }
+
+            return await combined
+                .OrderByDescending(m => m.BlockMinedAt)
                 .Take(20)
                 .ToListAsync();
-            
+
         }
     }
 }
