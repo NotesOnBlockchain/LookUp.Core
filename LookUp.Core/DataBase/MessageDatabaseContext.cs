@@ -10,6 +10,14 @@ namespace LookUp.Scanner.DataBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MessageModel>().HasAlternateKey(x => new { x.TransactionID, x.Hex });
+
+            modelBuilder.Entity<MessageModel>()
+                .HasIndex(x => x.BlockHash);
+
+            modelBuilder.Entity<MessageModel>()
+                .HasIndex(x => x.BlockMinedAt);
+
+
         }
     }
 }
