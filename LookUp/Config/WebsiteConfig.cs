@@ -11,9 +11,9 @@ namespace LookUp.Config
 
         public WebsiteConfig(string filePath, string apiKey, string backendUri) : base(filePath, apiKey)
         {
-            BandendUri = backendUri;
+            BackendUri = backendUri;
         }
-        public string BandendUri { get; init;  } = Constants.Constants.DefaultBackendUri;
+        public string BackendUri { get; init;  } = Constants.Constants.DefaultBackendUri;
 
         public static WebsiteConfig LoadFile(string filePath)
         {
