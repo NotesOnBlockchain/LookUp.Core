@@ -3,14 +3,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files first for layer caching
-COPY LookUp.Core.sln ./
 COPY LookUp/LookUp.csproj LookUp/
 COPY LookUp.Core/LookUp.Scanner.csproj LookUp.Core/
-COPY LookUp.Website/LookUp.Website.csproj LookUp.Website/
-COPY LookUp.Tests/LookUp.Tests.csproj LookUp.Tests/
 
-# Restore dependencies
-RUN dotnet restore LookUp.Core.sln
+RUN dotnet restore LookUp.Core/LookUp.Scanner.csproj
 
 # Copy the rest of the source
 COPY LookUp/ LookUp/
