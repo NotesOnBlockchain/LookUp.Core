@@ -20,7 +20,8 @@ RUN groupadd --gid 1002 lookup && \
     useradd --uid 1002 --gid 1002 --no-create-home --shell /bin/false lookup
 
 ENV HOME=/home/lookup
-ENV ASPNETCORE_HTTP_PORTS=5000
+# Override default port to listen on
+ENV ASPNETCORE_URLS=http://+:5000
 
 COPY --from=build /app/publish ./
 
