@@ -20,7 +20,7 @@ services:
     container_name: lookup-website
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     volumes:
       - /home/lookup/.lookup/website:/home/lookup/.lookup/website
     depends_on:
