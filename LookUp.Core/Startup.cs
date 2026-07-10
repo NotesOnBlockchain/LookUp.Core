@@ -10,6 +10,7 @@ using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
 using LookUp.Scanner.Middlewares;
 using LookUp.Scanner.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,8 @@ public class Startup
 
         services.AddHostedService<ScannerService>();
         services.AddHostedService<DataBaseWriterService>();
+
+        services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
 
         services.AddMemoryCache();
 

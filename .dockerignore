@@ -1,0 +1,22 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# Test project — not needed in any image
+LookUp.Tests/
+
+# Git
+.git/
+.github/
+
+# Local config overrides — secrets live on the host via bind mounts, never in the image
+**/appsettings.Development.json
+
+# OS / IDE noise
+.DS_Store
+Thumbs.db
+.vs/
+*.user
+*.suo
+appsettings.Development.json
+.env

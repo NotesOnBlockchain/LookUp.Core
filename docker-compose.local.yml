@@ -1,0 +1,48 @@
+services:
+  lookup-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
+    image: lookup-core:test
+    container_name: lookup-core
+    restart: unless-stopped
+
+    # Reachable by lookup-website as http://lookup-core:37127
+    expose:
+      - "37127"
+
+    volumes:
+      - ./test-data/backend:/home/lookup/.lookup/backend
+
+    extra_hosts:
+      # Allows Config.json Bitcoin RPC URIs pointing to localhost to reach the host machine
+      - "host.docker.internal:host-gateway"
+
+    networks:
+      - lookup-internal
+
+
+  lookup-website:
+    build:
+      context: .
+      dockerfile: Dockerfile.blazor
+    image: lookup-website:test
+    container_name: lookup-website
+    restart: unless-stopped
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - ./test-data/Website:/home/lookup/.lookup/website
+
+    depends_on:
+      - lookup-core
+
+    networks:
+      - lookup-internal
+
+
+networks:
+  lookup-internal:
+    driver: bridge

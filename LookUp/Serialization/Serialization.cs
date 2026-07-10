@@ -73,7 +73,7 @@ namespace LookUp.Serialization
         {
             public static JsonNode WebsiteConfig(Config.WebsiteConfig cfg) =>
                 Object([
-                    ("BackendUri", String(cfg.BandendUri)),
+                    ("BackendUri", String(cfg.BackendUri)),
                     ("LookUp-APIKEY", String(cfg.APIKey))
                 ]);
         }

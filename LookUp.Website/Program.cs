@@ -1,7 +1,9 @@
-using LookUp.Website.Components;
-using LookUp.Helpers;
 using LookUp.Config;
+using LookUp.Helpers;
 using LookUp.Logger;
+using LookUp.Website.Components;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,18 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped(sp => new HttpClient());
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+});
 
 var app = builder.Build();
 
@@ -40,7 +54,7 @@ app.MapGet("/activefilters", () =>
         });
 });
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

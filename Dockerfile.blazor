@@ -1,0 +1,31 @@
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY LookUp/LookUp.csproj LookUp/
+COPY LookUp.Website/LookUp.Website.csproj LookUp.Website/
+
+RUN dotnet restore LookUp.Website/LookUp.Website.csproj
+
+COPY LookUp/ LookUp/
+COPY LookUp.Website/ LookUp.Website/
+
+RUN dotnet publish LookUp.Website/LookUp.Website.csproj -c Release -o /app/publish --no-restore
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+RUN groupadd --gid 1002 lookup && \
+    useradd --uid 1002 --gid 1002 --no-create-home --shell /bin/false lookup
+
+ENV HOME=/home/lookup
+# Override default port to listen on
+ENV ASPNETCORE_URLS=http://+:5000
+
+COPY --from=build /app/publish ./
+
+USER lookup
+
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "LookUp.Website.dll"]

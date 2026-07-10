@@ -311,7 +311,7 @@
 
             isLoading = true;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BandendUri}/search?query={searchQuery}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BackendUri}/search?query={searchQuery}");
             request.Headers.Add("Authorization", $"ApiKey {Config.APIKey}");
             using var response = await HttpClient!.SendAsync(request, _cts.Token);
 
