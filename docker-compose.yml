@@ -1,6 +1,6 @@
 services:
   lookup-core:
-    image: ghcr.io/adamPetho/lookup-core:latest
+    image: ghcr.io/adampetho/lookup-core:latest
     container_name: lookup-core
     restart: unless-stopped
     # Not exposed to the host — internal only
@@ -16,7 +16,7 @@ services:
       - lookup-internal
 
   lookup-website:
-    image: ghcr.io/adamPetho/lookup-website:latest
+    image: ghcr.io/adampetho/lookup-website:latest
     container_name: lookup-website
     restart: unless-stopped
     ports:
