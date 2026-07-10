@@ -1,7 +1,8 @@
-using LookUp.Website.Components;
-using LookUp.Helpers;
 using LookUp.Config;
+using LookUp.Helpers;
 using LookUp.Logger;
+using LookUp.Website.Components;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped(sp => new HttpClient());
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
 
 var app = builder.Build();
 
@@ -39,8 +43,6 @@ app.MapGet("/activefilters", () =>
             WriteIndented = true
         });
 });
-
-app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
