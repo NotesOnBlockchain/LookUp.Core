@@ -30,7 +30,7 @@ namespace LookUp.Helpers
             "to:ZEC(BSC)",
             "to:PAXG(ERC20)",
             "to:AVAX(C-Chain)",
-            "to:DAI(BSC)",
+            "to:DAI",
             "to:XAUT(ERC20)",
             "to:BTCB",
             "to:GALA(ERC20)",
@@ -56,7 +56,12 @@ namespace LookUp.Helpers
             "to:HYPE(HyperEVM)",
             "to:SUI",
             "to:DEEP(SUI)",
-            "\"p\":\"brc-20\",\"op\":\"mint\""
+            "\"p\":\"brc-20\",\"op\":\"mint\"",
+            "to:GRAM",
+            "to:POL",
+            "to:PYUSD",
+            "to:CAKE",
+            "EVST1:"
         };
 
         public static bool FilterOutMessages(string hex, [NotNullWhen(true)] out string? message)
@@ -102,6 +107,11 @@ namespace LookUp.Helpers
 
             // 6. Length sanity check
             if (message.Length < 3 || message.Length > 80)
+                return false;
+
+            // 7. if it starts with "0x"
+            var charArray = message.ToCharArray();
+            if (charArray[0].Equals('0') && charArray[1].Equals('x'))
                 return false;
 
             if (message.Equals("BRC20PROG"))
