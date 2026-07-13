@@ -258,6 +258,16 @@ h1:focus {
         border-color: #007acc;
     }
 
+.message-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+    .message-card-link:hover .message-card {
+        cursor: pointer;
+    }
+
 .card-header {
     background-color: #252526;
     padding: 15px;
