@@ -4,17 +4,14 @@ namespace LookUp.Config
 {
     public abstract class ConfigBase
     {
-        protected ConfigBase(string filePath, string apiKey)
+        protected ConfigBase(string filePath)
         {
             FilePath = filePath ?? throw new ArgumentNullException($"{nameof(filePath)} cannot be null");
-            APIKey = apiKey ?? throw new ArgumentNullException($"{nameof(apiKey)} cannot be null");
         }
 
         private readonly object _fileLock = new();
 
         public string FilePath { get; }
-
-        public string APIKey { get; }
 
         public void ToFile()
         {

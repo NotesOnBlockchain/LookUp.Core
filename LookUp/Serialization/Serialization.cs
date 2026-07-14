@@ -64,9 +64,8 @@ namespace LookUp.Serialization
                     ("MainNetBitcoinCoreRpcEndPoint", String(cfg.MainNetBitcoinRpcUri)),
                     ("TestNetBitcoinCoreRpcEndPoint", String(cfg.TestNetBitcoinRpcUri)),
                     ("RegTestBitcoinCoreRpcEndPoint", String(cfg.RegTestBitcoinRpcUri)),
-                    ("SQLConnectionString", String(cfg.SQLConnectionString)),
-                    ("LookUp-APIKEY", String(cfg.APIKey))
-                ]);
+                    ("SQLConnectionString", String(cfg.SQLConnectionString))
+                    ]);
         }
 
         public static class WebsiteConfigEncode
@@ -74,7 +73,6 @@ namespace LookUp.Serialization
             public static JsonNode WebsiteConfig(Config.WebsiteConfig cfg) =>
                 Object([
                     ("BackendUri", String(cfg.BackendUri)),
-                    ("LookUp-APIKEY", String(cfg.APIKey))
                 ]);
         }
 
@@ -228,7 +226,6 @@ namespace LookUp.Serialization
             public static Decoder<Config.Config> Config(string filePath) =>
                 Object(get => new Config.Config(
                     filePath,
-                    get.Required("LookUp-APIKEY", String),
                     get.Required("Network", Network),
                     get.Required("BitcoinRpcConnectionString", String),
                     get.Required("MainNetBitcoinCoreRpcEndPoint", String),
@@ -243,7 +240,6 @@ namespace LookUp.Serialization
             public static Decoder<Config.WebsiteConfig> WebsiteConfig(string filePath) =>
                 Object(get => new Config.WebsiteConfig(
                     filePath,
-                    get.Required("LookUp-APIKEY", String),
                     get.Required("BackendUri", String)
                 ));
         }
