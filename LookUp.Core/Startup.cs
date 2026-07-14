@@ -8,11 +8,9 @@ using LookUp.Scanner.Cache;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
 using LookUp.Scanner.LastScannedBlockHeight;
-using LookUp.Scanner.Middlewares;
 using LookUp.Scanner.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin.RPC;
 
@@ -78,7 +76,6 @@ public class Startup
 
     public void Configure(IApplicationBuilder app)
     {
-        app.UseMiddleware<ApiKeyMiddleware>();
         app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());
 
