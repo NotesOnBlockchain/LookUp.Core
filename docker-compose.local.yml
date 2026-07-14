@@ -10,7 +10,14 @@ services:
     # Reachable by lookup-website as http://lookup-core:37127
     expose:
       - "37127"
-
+    
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:37127/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    
     volumes:
       - ./test-data/backend:/home/lookup/.lookup/backend
 
@@ -37,7 +44,8 @@ services:
       - ./test-data/Website:/home/lookup/.lookup/website
 
     depends_on:
-      - lookup-core
+      lookup-core:
+        condition: service_healthy
 
     networks:
       - lookup-internal
