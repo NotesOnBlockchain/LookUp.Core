@@ -7,14 +7,14 @@ namespace LookUp.Scanner.Controllers
 {
     public class SearchController : Controller
     {
-        public SearchController(MessageRepository messageRepository, IdempotencyCache idempotencyCache)
+        public SearchController(MessageRepository messageRepository, MessageModelIdempotencyCache idempotencyCache)
         {
             MessageRepository = messageRepository;
             IdempotencyCache = idempotencyCache;
         }
 
         private MessageRepository MessageRepository { get; }
-        private IdempotencyCache IdempotencyCache { get; }
+        private MessageModelIdempotencyCache IdempotencyCache { get; }
 
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)

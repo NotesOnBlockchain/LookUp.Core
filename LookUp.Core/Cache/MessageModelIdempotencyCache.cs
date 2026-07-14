@@ -4,12 +4,12 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace LookUp.Scanner.Cache
 {
-    public class IdempotencyCache
+    public class MessageModelIdempotencyCache
     {
         private readonly IMemoryCache _memoryCache;
         private object _memoryCacheLock = new object();
 
-        public IdempotencyCache(IMemoryCache memoryCache)
+        public MessageModelIdempotencyCache(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }

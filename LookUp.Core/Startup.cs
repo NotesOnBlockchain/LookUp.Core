@@ -63,7 +63,7 @@ public class Startup
 
         services.AddMemoryCache();
 
-        services.AddSingleton<IdempotencyCache>();
+        services.AddSingleton<MessageModelIdempotencyCache>();
 
         services.AddMvc();
         services.AddControllers();
