@@ -19,6 +19,11 @@ RUN dotnet publish LookUp.Core/LookUp.Scanner.csproj -c Release -o /app/publish 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
+# Get curl for health checks
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* 
+
 # Create the lookup group and user with the same uid/gid as the host
 RUN groupadd --gid 1002 lookup && \
     useradd --uid 1002 --gid 1002 --no-create-home --shell /bin/false lookup
