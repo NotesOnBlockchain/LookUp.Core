@@ -17,6 +17,12 @@ services:
       timeout: 15s
       retries: 3
       start_period: 30s
+      
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     
     volumes:
       - ./test-data/backend:/home/lookup/.lookup/backend
@@ -42,6 +48,12 @@ services:
 
     volumes:
       - ./test-data/Website:/home/lookup/.lookup/website
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
     depends_on:
       lookup-core:
