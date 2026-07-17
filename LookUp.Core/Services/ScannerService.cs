@@ -31,20 +31,39 @@ namespace LookUp.Scanner.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
-                var tipHeight = (int)blockchainInfo.Blocks;
-
-                if (tipHeight > LastScannedBlockHeight.BlockHeight)
+                try
                 {
-                    for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight + 1; height++)
-                    {
-                        VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
+                    // Check for new blocks then wait.
+                    await ScanAsync(stoppingToken);
 
-                        await ProcessBlockAsync(block);
-                    }
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    // Normal shutdown
+                    return;
+                }
+                catch (Exception ex) 
+                {
+                    Logger.Logger.LogWarning($"Scanner Service Loop failed: {ex}. Retrying...");
+                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                }
+            }
+        }
 
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+        private async Task ScanAsync(CancellationToken stoppingToken)
+        {
+            var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
+            var tipHeight = (int)blockchainInfo.Blocks;
+
+            if (tipHeight > LastScannedBlockHeight.BlockHeight)
+            {
+                for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight + 1; height++)
+                {
+                    VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
+
+                    await ProcessBlockAsync(block);
+                }
             }
         }
 
