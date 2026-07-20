@@ -23,7 +23,7 @@ ENV HOME=/home/lookup
 # Override default port to listen on
 ENV ASPNETCORE_URLS=http://+:5000
 
-COPY --from=build /app/publish ./
+COPY --from=build --chown=lookup:lookup /app/publish ./
 
 USER lookup
 

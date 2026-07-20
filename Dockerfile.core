@@ -34,7 +34,7 @@ ENV HOME=/home/lookup
 ENV ASPNETCORE_URLS=http://+:37127
 
 # Copy published output from build stage
-COPY --from=build /app/publish ./
+COPY --from=build --chown=lookup:lookup /app/publish ./
 
 USER lookup
 
