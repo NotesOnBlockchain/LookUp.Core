@@ -33,6 +33,12 @@ services:
 
     networks:
       - lookup-internal
+      
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
 
 
   lookup-website:
@@ -61,6 +67,12 @@ services:
 
     networks:
       - lookup-internal
+      
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
 
 
 networks:
