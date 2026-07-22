@@ -1,19 +1,20 @@
 # syntax=docker/dockerfile:1
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 WORKDIR /src
 
 COPY LookUp/LookUp.csproj LookUp/
 COPY LookUp.Website/LookUp.Website.csproj LookUp.Website/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \
     dotnet restore LookUp.Website/LookUp.Website.csproj
 
 COPY LookUp/ LookUp/
 COPY LookUp.Website/ LookUp.Website/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish LookUp.Website/LookUp.Website.csproj -c Release -o /app/publish --no-restore
+RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \
+    dotnet publish LookUp.Website/LookUp.Website.csproj -c Release -o /app/publish --no-restore -a $TARGETARCH
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime

@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 WORKDIR /src
 
 # Copy solution and project files first for layer caching
 COPY LookUp/LookUp.csproj LookUp/
 COPY LookUp.Core/LookUp.Scanner.csproj LookUp.Core/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
+RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \
 	dotnet restore LookUp.Core/LookUp.Scanner.csproj
 
 # Copy the rest of the source
@@ -15,8 +16,8 @@ COPY LookUp/ LookUp/
 COPY LookUp.Core/ LookUp.Core/
 
 # Publish the Scanner/Core project
-RUN --mount=type=cache,target=/root/.nuget/packages \ 
-	dotnet publish LookUp.Core/LookUp.Scanner.csproj -c Release -o /app/publish --no-restore
+RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \ 
+	dotnet publish LookUp.Core/LookUp.Scanner.csproj -c Release -o /app/publish --no-restore -a $TARGETARCH
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
