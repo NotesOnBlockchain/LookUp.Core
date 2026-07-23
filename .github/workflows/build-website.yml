@@ -76,7 +76,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ${{ env.IMAGE_NAME }}:latest
 
-     - name: Install Cosign
-       uses: sigstore/cosign-installer@v3
-     - name: Keyless Sign
-       run: cosign sign --yes ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+      - name: Keyless Sign
+        run: cosign sign --yes ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
