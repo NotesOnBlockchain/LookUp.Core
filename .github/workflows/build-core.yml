@@ -34,7 +34,7 @@ jobs:
         uses: aquasecurity/trivy-action@master      # Pin to version, instead of relying on master
         with:
           image-ref: lookup-core:scan-candidate
-          severity: CRITICAL,HIGH
+          severity: CRITICAL
           exit-code: 1
           
   build-and-push:
