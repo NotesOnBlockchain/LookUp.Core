@@ -11,7 +11,7 @@ permissions:
   attestations: write
 
 env:
-  IMAGE_NAME: ghcr.io/adampetho/lookup-website
+  IMAGE_NAME: ghcr.io/notesonblockchain/lookup-website
   DOCKERFILE_PATH: ./Dockerfile.blazor
 
 jobs:
