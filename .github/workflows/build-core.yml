@@ -31,11 +31,12 @@ jobs:
           tags: lookup-core:scan-candidate
           
       - name: Scan candidate with Trivy     # Check for vulnerabilities with Trivy before pushing to GHCR
-        uses: aquasecurity/trivy-action@master      # Pin to version, instead of relying on master
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: lookup-core:scan-candidate
           severity: CRITICAL
-          exit-code: 0
+          exit-code: 1
+          trivyignores: .trivyignore
           
   build-and-push:
     needs: scan

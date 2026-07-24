@@ -35,7 +35,8 @@ jobs:
         with:
           image-ref: lookup-website:scan-candidate
           severity: CRITICAL
-          exit-code: 0
+          exit-code: 1
+          trivyignores: .trivyignore
           
   build-and-push:
     needs: scan
