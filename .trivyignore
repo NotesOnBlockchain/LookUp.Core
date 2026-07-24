@@ -1,0 +1,10 @@
+# perl-base — Perl ships as a transitive OS dependency in the Debian base image;
+# our application never invokes perl or any perl script. Reviewed 2026-07-24.
+CVE-2026-13221  # Perl regex engine bug — requires executing perl against attacker input; perl is never invoked in this image
+CVE-2026-42496  # Path traversal in Perl's Archive::Tar — requires perl code extracting untrusted tarballs; not exercised
+CVE-2026-57433  # Integer overflow in Perl's Storable module — requires perl deserializing untrusted data; not exercised
+CVE-2026-8376   # Heap overflow, 32-bit builds only — our images are amd64/arm64 (64-bit); architecturally inapplicable
+
+# zlib1g — upstream/Debian marked will_not_fix; vulnerable function is minizip's
+# zip-writing API (zipOpenNewFileInZip4_6), never called by .NET's compression stack. Reviewed 2026-07-24.
+CVE-2023-45853  # Buffer overflow in zip-writing contrib function; not called by our application or .NET runtime
