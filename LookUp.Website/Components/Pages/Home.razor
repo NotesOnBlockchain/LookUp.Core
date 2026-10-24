@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject IHttpClientFactory HttpClientFactory
 @inject WebsiteConfig Config
+@inject NavigationManager Navigation
 
 <!-- Landing page - search first, example messages below -->
 <div class="home-container">
@@ -390,6 +391,10 @@
 
     private CancellationTokenSource? _cts;
 
+    // The search to run when the page is opened from a shared link (/?q=...).
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? QueryFromUrl { get; set; }
+
     // The "too short" note disappears as soon as the visitor has typed enough.
     private bool ShowTooShort => isTooFewChars && searchBarContent.Trim().Length < 3;
 
@@ -428,6 +433,9 @@
             query = query.ToLowerInvariant();
 
         lastQuery = query;
+
+        // Keep the address in step with the search so it can be shared or reloaded; replace, so Back leaves the page.
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("q", query.Length > 0 ? query : null), replace: true);
 
         isTooFewChars = query.Length < 3;
         if (isTooFewChars)
@@ -471,6 +479,22 @@
         {
             isLoading = false;
         }
+    }
+
+    // A search from the address runs once the page is interactive, not during prerendering, so the backend is queried once.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || string.IsNullOrWhiteSpace(QueryFromUrl))
+            return;
+
+        string query = QueryFromUrl.Trim();
+        searchBarContent = query.Length > Constants.Constants.MaxSearchQueryLength ? query[..Constants.Constants.MaxSearchQueryLength] : query;
+
+        // Mirrors what an event handler does: render the loading state, then the outcome.
+        Task search = SendSearchReq();
+        StateHasChanged();
+        await search;
+        StateHasChanged();
     }
 
     public void Dispose()

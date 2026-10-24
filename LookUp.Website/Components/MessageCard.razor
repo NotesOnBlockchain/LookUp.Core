@@ -1,4 +1,7 @@
 @using System.Globalization
+@implements IDisposable
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
 
 <article class="message-card">
     <h3 class="message-text" dir="auto">@Message.Message</h3>
@@ -6,7 +9,12 @@
 
     <dl class="message-meta">
         <div class="meta-row">
-            <dt>Transaction ID</dt>
+            <dt class="meta-head">
+                Transaction ID
+                <button type="button" class="card-action card-action--small" @onclick="CopyTransactionId">
+                    @(LabelFor(CopyTarget.TransactionId, "Copy"))<span class="visually-hidden"> transaction ID</span>
+                </button>
+            </dt>
             <dd><code>@Message.TransactionID</code></dd>
         </div>
     </dl>
@@ -25,20 +33,87 @@
         </dl>
     </details>
 
-    <a class="message-link"
-       href="https://mempool.space/tx/@Message.TransactionID"
-       target="_blank"
-       rel="noopener noreferrer">
-        View on mempool.space<span class="visually-hidden"> (transaction @ShortTransactionID, opens in a new tab)</span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
-            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
-        </svg>
-    </a>
+    <div class="message-actions">
+        <button type="button" class="card-action" @onclick="CopyLink">
+            @(LabelFor(CopyTarget.Link, "Copy link"))<span class="visually-hidden"> to this message</span>
+        </button>
+        <a class="message-link"
+           href="https://mempool.space/tx/@Message.TransactionID"
+           target="_blank"
+           rel="noopener noreferrer">
+            View on mempool.space<span class="visually-hidden"> (transaction @ShortTransactionID, opens in a new tab)</span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+            </svg>
+        </a>
+    </div>
+
+    <!-- Tells screen readers whether a copy worked; the button label shows the same thing. -->
+    <span class="visually-hidden" role="status">@copyAnnouncement</span>
 </article>
 
 @code {
+    private enum CopyTarget { Link, TransactionId }
+
+    private static readonly TimeSpan FeedbackDuration = TimeSpan.FromSeconds(2);
+
+    private CopyTarget? copiedTarget;
+    private bool copyFailed;
+    private string copyAnnouncement = string.Empty;
+    private CancellationTokenSource? _feedbackCts;
+
     [Parameter, EditorRequired]
     public MessageModel Message { get; set; } = default!;
+
+    // A Look Up address that shows exactly this message: a transaction ID search is an exact match.
+    private string ShareLink => $"{Navigation.BaseUri}?q={Uri.EscapeDataString(Message.TransactionID)}";
+
+    private string LabelFor(CopyTarget target, string idle) =>
+        copiedTarget != target ? idle : copyFailed ? "Copy failed – select the text instead" : "Copied";
+
+    private Task CopyLink() => CopyAsync(CopyTarget.Link, ShareLink, "Link to this message copied.");
+
+    private Task CopyTransactionId() => CopyAsync(CopyTarget.TransactionId, Message.TransactionID, "Transaction ID copied.");
+
+    private async Task CopyAsync(CopyTarget target, string text, string successAnnouncement)
+    {
+        _feedbackCts?.Cancel();
+        _feedbackCts = new CancellationTokenSource();
+        var token = _feedbackCts.Token;
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            copyFailed = false;
+            copyAnnouncement = successAnnouncement;
+        }
+        catch (JSException)
+        {
+            // The clipboard is unavailable (insecure page or permission denied); the text stays selectable.
+            copyFailed = true;
+            copyAnnouncement = "Copy failed. Select the text instead.";
+        }
+
+        copiedTarget = target;
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(FeedbackDuration, token);
+            copiedTarget = null;
+            copyAnnouncement = string.Empty;
+        }
+        catch (TaskCanceledException)
+        {
+            // A newer copy (or the card going away) replaced this feedback.
+        }
+    }
+
+    public void Dispose()
+    {
+        _feedbackCts?.Cancel();
+        _feedbackCts?.Dispose();
+    }
 
     // Enough of the TxID to tell links apart when a screen reader lists them.
     private string ShortTransactionID => Message.TransactionID.Length > 8 ? Message.TransactionID[..8] + "…" : Message.TransactionID;

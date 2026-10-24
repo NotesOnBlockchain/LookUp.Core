@@ -291,8 +291,62 @@ h1:focus {
     margin-bottom: 12px;
 }
 
-.message-link {
+/* Card actions: quiet text controls; the page's filled buttons stay reserved for Search and Try again. */
+.message-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
     margin-top: auto;
+}
+
+.meta-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.card-action {
+    padding: 2px 0;
+    border: 0;
+    background: none;
+    color: #e6e6e6;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+}
+
+    .card-action:hover {
+        color: #ffffff;
+    }
+
+.card-action--small {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: #c8ccd2;
+}
+
+.card-action:focus-visible,
+.message-link:focus-visible,
+.message-raw summary:focus-visible {
+    outline: 2px solid #6cb4c9;
+    outline-offset: 2px;
+}
+
+/* Comfortable tap targets on touch screens. */
+@media (pointer: coarse) {
+    .card-action,
+    .message-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+    }
+}
+
+.message-link {
     width: fit-content;
     font-size: 0.875rem;
     font-weight: 500;
