@@ -538,10 +538,10 @@
         if (!firstRender)
             return;
 
-        // The example messages decode as they scroll into view; purely decorative, so a failure here is ignored.
+        // Starts the decode animation on the now-interactive page; purely decorative, so a failure here is ignored.
         try
         {
-            await JS.InvokeVoidAsync("lookUpDecode.observeExamples");
+            await JS.InvokeVoidAsync("lookUpDecode.start");
         }
         catch (JSException)
         {

@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <title>Look Up</title>
+    <script>
+        // Text waits unrevealed until the decode animation starts (js/decode.js), so it doesn't flash first; never for more than 3 seconds.
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'animate' in Element.prototype) {
+            document.documentElement.classList.add('decode-intro');
+            setTimeout(() => document.documentElement.classList.remove('decode-intro'), 3000);
+        }
+    </script>
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="LookUp.Website.styles.css" />

@@ -234,7 +234,6 @@ h1:focus {
 }
 
     .message-card .message-text {
-        position: relative;
         margin: 0;
         font-size: 1.25rem;
         font-weight: 500;
@@ -242,27 +241,6 @@ h1:focus {
         color: var(--text-strong);
         overflow-wrap: anywhere;
         text-wrap: balance;
-    }
-
-    .message-plain {
-        display: block;
-    }
-
-    /* The raw bytes layered over the message; only visible while the decode animation runs. */
-    .message-hex {
-        display: none;
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-        font-size: 0.8125rem;
-        font-weight: 400;
-        line-height: 1.5;
-        letter-spacing: 0.04em;
-        color: var(--text-muted);
-        text-align: left;
-        word-break: break-all;
-        pointer-events: none;
     }
 
     .message-card .message-date {
@@ -390,57 +368,38 @@ h1:focus {
         vertical-align: -1px;
     }
 
-/* Decode: a message arrives as its raw hex bytes and wipes into the readable text, left to right.
-   Search results decode as they appear; the example messages decode as they scroll into view. */
-@keyframes decode-text {
-    from { clip-path: inset(0 100% 0 0); }
-    to { clip-path: inset(0 0 0 0); }
+/* Decode: every block of text arrives as its raw UTF-8 bytes in hex and wipes into the readable text, left to right,
+   on landing and each time it scrolls back into view. js/decode.js runs it; the hex is drawn in a separate layer
+   outside Blazor's markup. These rules only style that layer and the brief pre-decode state on landing. */
+#decode-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 10;
+    pointer-events: none;
 }
 
-@keyframes decode-hex {
-    from { clip-path: inset(0 0 0 0); visibility: visible; }
-    to { clip-path: inset(0 0 0 100%); visibility: hidden; }
+.decode-hex {
+    position: absolute;
+    overflow: hidden;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    word-break: break-all;
+}
+
+/* Until the landing decode starts (or a 3 second fallback passes), decodable text waits unrevealed instead of flashing. */
+html.decode-intro :is(.hero-name, .hero-tagline, .home-container h2, .home-container p:not(.visually-hidden), .search-empty li, .message-text, .tech-stack li) {
+    clip-path: inset(0 100% 0 0);
 }
 
 @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .results .message-plain {
-        animation: decode-text 700ms cubic-bezier(0.65, 0, 0.35, 1) var(--decode-delay, 0ms) both;
-    }
-
-    .results .message-hex {
-        display: block;
-        animation: decode-hex 700ms cubic-bezier(0.65, 0, 0.35, 1) var(--decode-delay, 0ms) both;
-    }
-
-    /* A short stagger down the list, capped so twenty results never wait long. */
-    .results .message-card:nth-child(2) { --decode-delay: 60ms; }
-    .results .message-card:nth-child(3) { --decode-delay: 120ms; }
-    .results .message-card:nth-child(4) { --decode-delay: 180ms; }
-    .results .message-card:nth-child(n + 5) { --decode-delay: 240ms; }
-
-    /* Examples decode once as they scroll into view. js/decode.js adds .decode-ready only when it can observe them,
-       so without the script the messages simply stay readable. */
-    .decode-ready .message-card:not(.is-decoded) .message-plain {
-        clip-path: inset(0 100% 0 0);
-    }
-
-    .decode-ready .message-card:not(.is-decoded) .message-hex,
-    .decode-ready .message-card.is-decoded .message-hex {
-        display: block;
-    }
-
-    .decode-ready .message-card.is-decoded .message-plain {
-        animation: decode-text 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
-    }
-
-    .decode-ready .message-card.is-decoded .message-hex {
-        animation: decode-hex 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,11 +4,7 @@
 @inject NavigationManager Navigation
 
 <article class="message-card">
-    <h3 class="message-text" dir="auto">
-        <span class="message-plain">@Message.Message</span>
-        <!-- The raw bytes, shown only while the message "decodes" into view. -->
-        <span class="message-hex" dir="ltr" aria-hidden="true">@Message.Hex</span>
-    </h3>
+    <h3 class="message-text" dir="auto">@Message.Message</h3>
     <p class="message-date">Mined <time datetime="@Message.BlockMinedAt.UtcDateTime.ToString("o", CultureInfo.InvariantCulture)">@FormatMinedAt(Message.BlockMinedAt)</time></p>
 
     <dl class="message-meta">
