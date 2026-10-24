@@ -66,7 +66,7 @@ namespace LookUp.Scanner.DataBase
             await _dBContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<MessageModel>> FindAsync(string query)
+        public async Task<List<MessageModel>> FindAsync(string query, CancellationToken cancellationToken)
         {
             DateTimeOffset? dayStart = null;
             DateTimeOffset? dayEnd = null;
@@ -108,7 +108,7 @@ namespace LookUp.Scanner.DataBase
             return await combined
                 .OrderByDescending(m => m.BlockMinedAt)
                 .Take(Constants.Constants.MaxSearchResults)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
         }
 

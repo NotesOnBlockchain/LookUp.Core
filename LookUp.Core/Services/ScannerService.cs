@@ -60,7 +60,7 @@ namespace LookUp.Scanner.Services
                     ?? throw new InvalidOperationException("Scan progress is missing from the database.");
             }
 
-            if (tipHeight > nextBlockHeight)
+            if (tipHeight >= nextBlockHeight)
             {
                 for (int height = nextBlockHeight; height < tipHeight + 1; height++)
                 {

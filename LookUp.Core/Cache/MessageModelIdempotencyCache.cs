@@ -19,12 +19,12 @@ namespace LookUp.Scanner.Cache
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
         };
 
-        public async Task<List<MessageModel>> GetCachedResultAsync(string request, Func<string, Task<List<MessageModel>>> action, CancellationToken cancellationToken = default)
+        public async Task<List<MessageModel>> GetCachedResultAsync(string request, Func<string, CancellationToken, Task<List<MessageModel>>> action, CancellationToken cancellationToken = default)
         {
             return await GetCachedResultAsync(request, action, IdempotencyEntryOptions, cancellationToken);
         }
 
-        private async Task<List<MessageModel>> GetCachedResultAsync(string request, Func<string, Task<List<MessageModel>>> action, MemoryCacheEntryOptions idempotencyEntryOptions, CancellationToken cancellationToken)
+        private async Task<List<MessageModel>> GetCachedResultAsync(string request, Func<string, CancellationToken, Task<List<MessageModel>>> action, MemoryCacheEntryOptions idempotencyEntryOptions, CancellationToken cancellationToken)
         {
             bool callAction = TryAddKey(request, idempotencyEntryOptions, out TaskCompletionSource<List<MessageModel>> responseTcs);
 
@@ -32,7 +32,9 @@ namespace LookUp.Scanner.Cache
             {
                 try
                 {
-                    var result = await action(request);
+                    // The query is shared with every identical request that arrives while it runs, so it stops on
+                    // this request's timeout only; a visitor leaving must not cancel it for the others.
+                    var result = await action(request, cancellationToken);
                     responseTcs.SetResult(result);
                     return result;
                 }
@@ -49,7 +51,8 @@ namespace LookUp.Scanner.Cache
                 }
             }
 
-            return await responseTcs.Task;
+            // Requests waiting on another request's query still give up on their own timeout.
+            return await responseTcs.Task.WaitAsync(cancellationToken);
         }
 
         private bool TryAddKey(string cacheKey, MemoryCacheEntryOptions options, out TaskCompletionSource<List<MessageModel>> responseTcs)
