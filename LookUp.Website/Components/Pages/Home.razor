@@ -6,7 +6,11 @@
 
 <!-- Landing page - search first, example messages below -->
 <div class="home-container">
-    <h1>Look Up - Blockchain Message Explorer</h1>
+    <!-- Hero: the name at display scale and the search as the one obvious action. -->
+    <h1 class="hero-title">
+        <span class="hero-name">Look Up</span>
+        <span class="hero-tagline"><span class="visually-hidden">- </span>Blockchain Message Explorer</span>
+    </h1>
 
     <!-- Search -->
     <div class="search-section">
@@ -170,14 +174,42 @@
         margin: 0 0 24px;
     }
 
+    /* Hero: the name at display scale; the tagline and the system's teal bar sit under it. */
+    .home-container .hero-title {
+        margin: clamp(32px, 9vh, 112px) 0 clamp(32px, 5vh, 56px);
+        line-height: 1;
+    }
+
+        .home-container .hero-title::after {
+            width: 120px;
+            height: 4px;
+            margin: 28px auto 0;
+        }
+
+    .hero-name {
+        display: block;
+        font-size: clamp(3.5rem, 7vw + 1rem, 7.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+    }
+
+    .hero-tagline {
+        display: block;
+        margin-top: 16px;
+        font-size: clamp(1.125rem, 0.9rem + 1vw, 1.5rem);
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        color: var(--text-body);
+    }
+
     .search-hint {
-        max-width: 600px;
+        max-width: 720px;
         margin: 0 auto;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     .home-container .search-inline-error {
-        max-width: 600px;
+        max-width: 720px;
         margin: -12px auto 8px;
         color: var(--danger-text);
         font-size: 0.95rem;
@@ -251,24 +283,26 @@
     }
 
     .search-form {
-        max-width: 600px;
+        max-width: 720px;
         display: flex;
         gap: 10px;
         margin: 0 auto 20px auto;
     }
 
-    /* Generous break after the search group, so the examples read as a separate, secondary section. */
+    /* Generous break after the hero, so the examples read as a separate, secondary section. */
     .examples-section {
-        margin-top: 72px;
+        margin-top: clamp(72px, 14vh, 144px);
     }
 
     /* A dark field with a visible edge, so the button carries the action. */
     .search-input {
         flex: 1;
-        padding: 10px;
+        min-width: 0;
+        height: 64px;
+        padding: 0 20px;
         border: 1px solid var(--field-border);
         border-radius: 4px;
-        font-size: 16px;
+        font-size: 1.25rem;
         background-color: var(--field);
         color: var(--text-strong);
         caret-color: var(--accent);
@@ -298,6 +332,30 @@
         cursor: pointer;
         font-size: 16px;
         font-weight: 500;
+    }
+
+        /* The hero's search button matches the field's height and weight; Try again keeps the regular size. */
+        .search-form .search-button {
+            height: 64px;
+            padding: 0 32px;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+    @@media (max-width: 600px) {
+        .search-input,
+        .search-form .search-button {
+            height: 56px;
+        }
+
+        .search-input {
+            padding: 0 14px;
+            font-size: 1.125rem;
+        }
+
+        .search-form .search-button {
+            padding: 0 20px;
+        }
     }
 
         .search-button:hover {
