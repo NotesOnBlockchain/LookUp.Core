@@ -1,9 +1,10 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #181b29;
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: #6cb4c9;
 }
 
 .btn-primary {
@@ -85,7 +86,7 @@ h1:focus {
     padding: 40px 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #181b29;
     color: #e6e6e6;
 }
 
@@ -95,9 +96,8 @@ h1:focus {
         font-size: 2.5rem;
         margin-bottom: 25px;
         margin-top: -10px;
-        color: #4cc9f0;
+        color: #eceef4;
         text-align: center;
-        text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
         position: relative;
     }
 
@@ -106,30 +106,28 @@ h1:focus {
             content: '';
             display: block;
             width: 100px;
-            height: 4px;
-            background: linear-gradient(to right, #4cc9f0, #4361ee);
+            height: 3px;
+            background: #6cb4c9;
             margin: 10px auto;
             border-radius: 2px;
         }
 
     .home-container p {
         font-size: 1.1rem;
-        color: #d1d1d1;
+        color: #cfd3dc;
         text-align: center;
     }
 
 .disclaimer {
-    background: rgba(255, 107, 107, 0.1);
-    border-left: 4px solid #ff6b6b;
+    background: #22263a;
     padding: 20px;
     margin: 30px 0;
-    border-radius: 0 8px 8px 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
     .disclaimer p {
         margin: 0 0 15px 0;
-        color: #ffb3b3;
+        color: #d6d9e0;
     }
 
         .disclaimer p:last-child {
@@ -234,7 +232,7 @@ h1:focus {
     gap: 16px;
     width: 350px;
     padding: 24px;
-    background-color: #1e1e1e;
+    background-color: #22263a;
     border-radius: 8px;
     color: #e6e6e6;
     text-align: left;

@@ -141,14 +141,14 @@
         flex-direction: column;
         align-items: center;
         margin-top: 40px;
-        color: #555;
+        color: #a3a9b8;
     }
 
     .spinner {
         width: 20px;
         height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
+        border: 3px solid rgba(255, 255, 255, 0.15);
+        border-top-color: #6cb4c9;
         border-radius: 50%;
         animation: spin 1s linear infinite;
     }
@@ -157,7 +157,7 @@
             width: 40px;
             height: 40px;
             border-width: 4px;
-            border-top-color: #007acc;
+            border-top-color: #6cb4c9;
         }
 
     @@keyframes spin {
@@ -179,7 +179,7 @@
     .home-container .search-inline-error {
         max-width: 600px;
         margin: -12px auto 8px;
-        color: #ffb3b3;
+        color: #f0b4b4;
         font-size: 0.95rem;
     }
 
@@ -204,14 +204,14 @@
         max-width: 600px;
         margin: 0 auto;
         padding: 20px 24px;
-        background: rgba(255, 107, 107, 0.12);
+        background: rgba(232, 120, 120, 0.12);
         border-radius: 8px;
         text-align: center;
     }
 
         .home-container .search-error p {
             margin: 0 0 16px;
-            color: #ffd6d6;
+            color: #f2c9c9;
         }
 
     .search-empty {
@@ -228,7 +228,7 @@
         .search-empty ul {
             margin: 0 0 16px;
             padding-left: 1.25rem;
-            color: #d1d1d1;
+            color: #cfd3dc;
             font-size: 1.05rem;
         }
 
@@ -264,27 +264,41 @@
         margin-top: 72px;
     }
 
+    /* A dark field with a visible edge, so the button carries the action. */
     .search-input {
         flex: 1;
         padding: 10px;
-        border: 1px solid #ccc;
+        border: 1px solid #6b7290;
         border-radius: 4px;
         font-size: 16px;
+        background-color: #10121b;
+        color: #eceef4;
     }
+
+        .search-input::placeholder {
+            color: #9aa1b0;
+        }
 
     .search-button {
         padding: 10px 20px;
-        background-color: #007acc;
-        color: white;
+        background-color: #6cb4c9;
+        color: #0f1220;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         font-size: 16px;
+        font-weight: 500;
     }
 
         .search-button:hover {
-            background-color: #005a9e;
+            background-color: #86c4d6;
         }
+
+    .search-input:focus-visible,
+    .search-button:focus-visible {
+        outline: 2px solid #6cb4c9;
+        outline-offset: 2px;
+    }
 
     .result-container {
         margin-top: 20px;
@@ -317,16 +331,16 @@
     }
 
     .github-link {
-        color: wheat;
+        color: #e6e6e6;
         text-decoration: none;
         font-weight: bold;
-        border-bottom: 2px solid #333; /* Stylish underline */
+        border-bottom: 1px solid #6cb4c9;
         transition: color 0.2s ease;
     }
 
         .github-link:hover {
-            color: #0366d6; /* GitHub Blue on hover */
-            border-color: #0366d6;
+            color: #ffffff;
+            border-color: #86c4d6;
         }
 </style>
 
