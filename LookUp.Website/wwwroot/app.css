@@ -1,20 +1,40 @@
+/* Colour tokens: one dark surface family, one muted accent, and a warm tone kept for errors. */
+:root {
+    color-scheme: dark;
+
+    --bg: #181b29;
+    --surface: #22263a;
+    --field: #10121b;
+    --field-border: #6b7290;
+
+    --text-strong: #eceef4;
+    --text: #e6e6e6;
+    --text-body: #cfd3dc;
+    --text-muted: #a3a9b8;
+    --text-hover: #ffffff;
+    --placeholder: #9aa1b0;
+
+    --accent: #6cb4c9;
+    --accent-hover: #86c4d6;
+    --on-accent: #0f1220;
+
+    --danger-surface: rgba(232, 120, 120, 0.12);
+    --danger-text: #f0b4b4;
+    --danger-text-strong: #f2c9c9;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #181b29;
+    background-color: var(--bg);
+}
+
+::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
 }
 
 a, .btn-link {
-    color: #6cb4c9;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    color: var(--accent);
 }
 
 .content {
@@ -47,47 +67,13 @@ h1:focus {
         content: "An error has occurred."
     }
 
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
-}
-
-.about-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.about-container h1 {
-    color: #333;
-    border-bottom: 2px solid #007acc;
-    padding-bottom: 0px;
-}
-
-.about-container ul {
-    padding-left: 0px;
-}
-
-.about-container li {
-    margin-bottom: 8px;
-}
-
-.about-container a {
-    color: #007acc;
-    text-decoration: none;
-}
-
-.about-container a:hover {
-        text-decoration: underline;
-}
-
 .home-container {
     margin: 0 auto;
     padding: 40px 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    background: #181b29;
-    color: #e6e6e6;
+    background: var(--bg);
+    color: var(--text);
 }
 
     /* The page title (h1) and the section titles (h2) share one look. */
@@ -96,8 +82,9 @@ h1:focus {
         font-size: 2.5rem;
         margin-bottom: 25px;
         margin-top: -10px;
-        color: #eceef4;
+        color: var(--text-strong);
         text-align: center;
+        text-wrap: balance;
         position: relative;
     }
 
@@ -107,19 +94,27 @@ h1:focus {
             display: block;
             width: 100px;
             height: 3px;
-            background: #6cb4c9;
+            background: var(--accent);
             margin: 10px auto;
             border-radius: 2px;
         }
 
     .home-container p {
         font-size: 1.1rem;
-        color: #cfd3dc;
+        color: var(--text-body);
         text-align: center;
+        text-wrap: pretty;
+    }
+
+    /* One visible focus ring for every link on the dark page. */
+    .home-container a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 2px;
     }
 
 .disclaimer {
-    background: #22263a;
+    background: var(--surface);
     padding: 20px;
     margin: 30px 0;
     border-radius: 8px;
@@ -127,7 +122,7 @@ h1:focus {
 
     .disclaimer p {
         margin: 0 0 15px 0;
-        color: #d6d9e0;
+        color: var(--text-body);
     }
 
         .disclaimer p:last-child {
@@ -232,9 +227,9 @@ h1:focus {
     gap: 16px;
     width: 350px;
     padding: 24px;
-    background-color: #22263a;
+    background-color: var(--surface);
     border-radius: 8px;
-    color: #e6e6e6;
+    color: var(--text);
     text-align: left;
 }
 
@@ -243,7 +238,7 @@ h1:focus {
         font-size: 1.25rem;
         font-weight: 500;
         line-height: 1.45;
-        color: #f2f2f2;
+        color: var(--text-strong);
         overflow-wrap: anywhere;
         text-wrap: balance;
     }
@@ -251,7 +246,7 @@ h1:focus {
     .message-card .message-date {
         margin: -8px 0 0;
         font-size: 0.875rem;
-        color: #a0a4ab;
+        color: var(--text-muted);
         text-align: left;
     }
 
@@ -265,7 +260,7 @@ h1:focus {
         margin-bottom: 2px;
         font-size: 0.8125rem;
         font-weight: 400;
-        color: #a0a4ab;
+        color: var(--text-muted);
     }
 
     .message-meta dd {
@@ -276,14 +271,14 @@ h1:focus {
         font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
         font-size: 0.8125rem;
         line-height: 1.5;
-        color: #d4d4d4;
+        color: var(--text-body);
         word-break: break-all;
     }
 
 .message-raw summary {
     width: fit-content;
     font-size: 0.875rem;
-    color: #c8ccd2;
+    color: var(--text-body);
     cursor: pointer;
 }
 
@@ -311,7 +306,7 @@ h1:focus {
     padding: 2px 0;
     border: 0;
     background: none;
-    color: #e6e6e6;
+    color: var(--text);
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: underline;
@@ -320,19 +315,18 @@ h1:focus {
 }
 
     .card-action:hover {
-        color: #ffffff;
+        color: var(--text-hover);
     }
 
 .card-action--small {
     font-size: 0.8125rem;
     font-weight: 400;
-    color: #c8ccd2;
+    color: var(--text-body);
 }
 
 .card-action:focus-visible,
-.message-link:focus-visible,
 .message-raw summary:focus-visible {
-    outline: 2px solid #6cb4c9;
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
@@ -350,12 +344,12 @@ h1:focus {
     width: fit-content;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #e6e6e6;
+    color: var(--text);
     text-underline-offset: 0.2em;
 }
 
     .message-link:hover {
-        color: #ffffff;
+        color: var(--text-hover);
     }
 
     .message-link svg {
@@ -363,12 +357,8 @@ h1:focus {
         vertical-align: -1px;
     }
 
-@media (max-width: 1200px) {
-    .cards-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
+/* Cards wrap two or three to a row while they fit; only narrow screens stack them in one column. */
+@media (max-width: 760px) {
     .message-card {
         width: 100%;
         max-width: 400px;
