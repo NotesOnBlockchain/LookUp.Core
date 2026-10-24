@@ -27,7 +27,9 @@
 }
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* One sans for the whole site: each platform's own UI font (Segoe UI on Windows, San Francisco on Apple, Roboto on
+       Android). Data (hex, IDs, record labels) uses the monospace stack instead. */
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--bg);
 }
 
@@ -73,7 +75,6 @@ h1:focus {
 .home-container {
     margin: 0 auto;
     padding: 40px 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     background: var(--bg);
     color: var(--text);
