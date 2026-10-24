@@ -12,59 +12,84 @@
         <div class="search-container">
             <form class="search-form" @onsubmit="SendSearchReq">
                 <label for="search-query" class="visually-hidden">Search messages</label>
-                <input type="text"
+                <input type="search"
                        id="search-query"
                        @bind="searchBarContent"
                        @bind:event="oninput"
                        maxlength="@Constants.Constants.MaxSearchQueryLength"
-                       aria-describedby="search-hint"
+                       aria-describedby="@InputDescribedBy"
+                       aria-invalid="@(ShowTooShort ? "true" : null)"
                        placeholder="TxID, block hash, hex, message or date"
+                       autocomplete="off"
+                       spellcheck="false"
+                       enterkeyhint="search"
                        class="search-input" />
 
                 <button type="submit" class="search-button" disabled="@isLoading">
                     Search
                 </button>
             </form>
+            @if (ShowTooShort)
+            {
+                <p id="search-too-short" class="search-inline-error">Type at least 3 characters to search.</p>
+            }
             <p id="search-hint" class="search-hint">Paste a transaction ID, block hash or full hex, type words from the message, or enter a date as YYYY-MM-DD (UTC).</p>
         </div>
 
-        <div class="cards-container">
-            @if (isLoading)
-            {
-                <div class="loading-container">
-                    <div class="spinner large"></div>
-                </div>
-            }
-            else if (searchError is not null)
-            {
-                <h3>@searchError</h3>
-            }
-            else if (isTooFewChars)
-            {
-                <h3>Please enter at least 3 characters...</h3>
-            }
-            else if (searchResult.Count > 0)
-            {
-                @if (searchResult.Count >= Constants.Constants.MaxSearchResults)
-                {
-                    <p class="search-note">Showing the @Constants.Constants.MaxSearchResults most recent matches. Use a more specific search to find older ones.</p>
-                }
+        <!-- Announces every search outcome to screen readers; the visible versions are below. -->
+        <p class="visually-hidden" role="status">@StatusAnnouncement</p>
 
-                @foreach (var message in searchResult)
+        @if (isRequested && !isTooFewChars)
+        {
+            <section class="results" aria-labelledby="results-title">
+                <h2 id="results-title" class="results-title">@ResultsTitle</h2>
+
+                @if (isLoading)
                 {
-                    <MessageCard Message="message" />
+                    <div class="loading-container">
+                        <div class="spinner large"></div>
+                    </div>
                 }
-            }
-            else if (isRequested)
-            {
-                <h3>No Results...</h3>
-            }
-        </div>
+                else if (searchError is not null)
+                {
+                    <div class="search-error" role="alert">
+                        <p>@searchError</p>
+                        <button type="button" class="search-button" @onclick="SendSearchReq">Try again</button>
+                    </div>
+                }
+                else if (searchResult.Count > 0)
+                {
+                    @if (searchResult.Count >= Constants.Constants.MaxSearchResults)
+                    {
+                        <p class="search-note">Showing the @Constants.Constants.MaxSearchResults most recent matches. Use a more specific search to find older ones.</p>
+                    }
+
+                    <div class="cards-container">
+                        @foreach (var message in searchResult)
+                        {
+                            <MessageCard Message="message" />
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="search-empty">
+                        <p>Nothing on the blockchain matches that search. You could try:</p>
+                        <ul>
+                            <li>one or two distinctive words from the message</li>
+                            <li>the full 64-character transaction ID or block hash</li>
+                            <li>the day it was mined, as YYYY-MM-DD (UTC)</li>
+                        </ul>
+                        <p>Some messages are filtered out as spam. <a href="/activefilters">See the filter rules</a>.</p>
+                    </div>
+                }
+            </section>
+        }
     </div>
 
     <!-- Example messages -->
     <div class="examples-section">
-        <h1>Example messages</h1>
+        <h2>Example messages</h2>
         <div class="cards-container">
             @foreach (var message in ExampleMessages)
             {
@@ -76,7 +101,7 @@
 
 <!-- About -->
 <div class="home-container">
-    <h1>About Look Up</h1>
+    <h2>About Look Up</h2>
 
     <p>It's a small project that scans the Bitcoin blockchain for human-readable messages in transactions.</p>
     <p>This page lets you find messages on the blockchain by transaction ID, block hash or full hex (exact match), by words in the message, or by the UTC date of the block.</p>
@@ -98,7 +123,7 @@
     </div>
 
     <!-- Tech Stack -->
-    <h1>Technology Stack</h1>
+    <h2>Technology Stack</h2>
     <div class="tech-stack">
         <ul>
             <li>C#/.NET</li>
@@ -142,8 +167,7 @@
     }
 
     .search-note {
-        flex-basis: 100%;
-        margin: 0;
+        margin: 0 0 24px;
     }
 
     .search-hint {
@@ -151,6 +175,71 @@
         margin: 0 auto;
         font-size: 0.95rem;
     }
+
+    .home-container .search-inline-error {
+        max-width: 600px;
+        margin: -12px auto 8px;
+        color: #ffb3b3;
+        font-size: 0.95rem;
+    }
+
+    /* Search outcome: a plain status heading, then the results, the error or the empty state. */
+    .results {
+        margin-top: 16px;
+    }
+
+    .home-container .results-title {
+        margin: 0 0 16px;
+        font-size: 1.5rem;
+        color: #e6e6e6;
+        text-shadow: none;
+        overflow-wrap: anywhere;
+    }
+
+        .home-container .results-title::after {
+            content: none;
+        }
+
+    .search-error {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px 24px;
+        background: rgba(255, 107, 107, 0.12);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+        .home-container .search-error p {
+            margin: 0 0 16px;
+            color: #ffd6d6;
+        }
+
+    .search-empty {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: left;
+    }
+
+        .home-container .search-empty p {
+            margin: 0 0 8px;
+            text-align: left;
+        }
+
+        .search-empty ul {
+            margin: 0 0 16px;
+            padding-left: 1.25rem;
+            color: #d1d1d1;
+            font-size: 1.05rem;
+        }
+
+        .search-empty li {
+            margin-bottom: 4px;
+        }
+
+        .search-empty a {
+            color: #e6e6e6;
+            text-underline-offset: 0.2em;
+        }
 
     .search-button:disabled {
         opacity: 0.7;
@@ -274,14 +363,38 @@
     private const string SearchFailedMessage = "Search is unavailable right now. Please try again in a moment.";
     private const string SearchTimedOutMessage = "The search took too long. Please try again or use a more specific search.";
 
+    // Long queries (a pasted hex string) are shortened where they are echoed back, so headings stay readable.
+    private const int MaxEchoedQueryLength = 32;
+
     private string searchBarContent = string.Empty;
     private List<MessageModel> searchResult = new List<MessageModel>();
     private string? searchError;
+    private string lastQuery = string.Empty;
     private bool isRequested = false;
     private bool isLoading = false;
     private bool isTooFewChars = false;
 
     private CancellationTokenSource? _cts;
+
+    // The "too short" note disappears as soon as the visitor has typed enough.
+    private bool ShowTooShort => isTooFewChars && searchBarContent.Trim().Length < 3;
+
+    private string InputDescribedBy => ShowTooShort ? "search-too-short search-hint" : "search-hint";
+
+    private string EchoedQuery => lastQuery.Length > MaxEchoedQueryLength ? lastQuery[..MaxEchoedQueryLength] + "…" : lastQuery;
+
+    private string ResultsTitle =>
+        isLoading ? $"Searching for “{EchoedQuery}”…"
+        : searchError is not null ? "Search failed"
+        : searchResult.Count == 0 ? $"No messages found for “{EchoedQuery}”"
+        : searchResult.Count == 1 ? $"1 message found for “{EchoedQuery}”"
+        : $"{searchResult.Count} messages found for “{EchoedQuery}”";
+
+    // Errors are announced by their own alert, so the status region stays quiet for them.
+    private string StatusAnnouncement =>
+        ShowTooShort ? "Type at least 3 characters to search."
+        : !isRequested || isTooFewChars || searchError is not null ? string.Empty
+        : ResultsTitle;
 
     private async Task SendSearchReq()
     {
@@ -299,6 +412,8 @@
         // Lowercasing is harmless for message search, which ignores case.
         if (query.All(Uri.IsHexDigit))
             query = query.ToLowerInvariant();
+
+        lastQuery = query;
 
         isTooFewChars = query.Length < 3;
         if (isTooFewChars)
