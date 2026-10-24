@@ -19,6 +19,10 @@ namespace LookUp.Scanner.DataBase
             modelBuilder.Entity<MessageModel>()
                 .HasIndex(x => x.BlockMinedAt);
 
+            // Hex is the second column of the (TransactionID, Hex) key, so that index can't serve a lookup by Hex alone.
+            modelBuilder.Entity<MessageModel>()
+                .HasIndex(x => x.Hex);
+
             modelBuilder.Entity<ScanProgress>()
                 .Property(x => x.ID)
                 .ValueGeneratedNever();

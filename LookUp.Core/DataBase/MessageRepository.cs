@@ -77,25 +77,30 @@ namespace LookUp.Scanner.DataBase
                 dayEnd = dayStart.Value.AddDays(1);
             }
 
-            // Each branch hits its own index
-            var byTransactionId = _dBContext.Messages
-                .Where(m => m.TransactionID == query);
-
-            var byHex = _dBContext.Messages
-                .Where(m => m.Hex == query);
-
-            var byBlockHash = _dBContext.Messages
-                .Where(m => m.BlockHash == query);
+            // Each branch hits its own index.
 
             // The query is matched literally: without escaping, "%%%" or "___" would match every message.
             string messagePattern = $"%{EscapeLikePattern(query)}%";
-            var byMessage = _dBContext.Messages
+            var combined = _dBContext.Messages
                 .Where(m => EF.Functions.ILike(m.Message, messagePattern, LikeEscapeCharacter));
 
-            var combined = byTransactionId
-                .Union(byHex)
-                .Union(byBlockHash)
-                .Union(byMessage);
+            // Transaction IDs, block hashes and Hex are stored as hex, so a query with any other character can't match them.
+            if (query.All(char.IsAsciiHexDigit))
+            {
+                var byTransactionId = _dBContext.Messages
+                    .Where(m => m.TransactionID == query);
+
+                var byHex = _dBContext.Messages
+                    .Where(m => m.Hex == query);
+
+                var byBlockHash = _dBContext.Messages
+                    .Where(m => m.BlockHash == query);
+
+                combined = combined
+                    .Union(byTransactionId)
+                    .Union(byHex)
+                    .Union(byBlockHash);
+            }
 
             if (dayStart != null)
             {

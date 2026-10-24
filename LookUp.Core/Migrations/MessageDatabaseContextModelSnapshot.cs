@@ -55,6 +55,8 @@ namespace LookUp.Core.Migrations
 
                     b.HasIndex("BlockMinedAt");
 
+                    b.HasIndex("Hex");
+
                     b.ToTable("Messages");
                 });
 
