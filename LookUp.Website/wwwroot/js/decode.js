@@ -6,7 +6,7 @@
 // nodes inside it: the hex is drawn in a separate layer at the end of <body>, and the text is revealed with the Web
 // Animations API, which leaves the element's attributes alone. Home.razor calls start() after its first interactive render.
 (() => {
-    const TARGETS = '.hero-name, .hero-tagline, .home-container h2, .home-container p:not(.visually-hidden), .search-empty li, .message-text, .tech-stack li';
+    const TARGETS = '.hero-name, .hero-tagline, .home-container h2, .home-container p:not(.visually-hidden), .search-empty li, .message-text, .tech-stack dd';
     const DURATION = 700;
     const EASING = 'cubic-bezier(0.65, 0, 0.35, 1)';
     const STAGGER = 50;

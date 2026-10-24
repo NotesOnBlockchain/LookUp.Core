@@ -132,15 +132,25 @@
 
     <!-- Tech Stack -->
     <h2>Technology Stack</h2>
-    <div class="tech-stack">
-        <ul>
-            <li>C#/.NET</li>
-            <li>Entity Framework</li>
-            <li>PostgreSQL</li>
-            <li>Blazor</li>
-            <li>HTML5/CSS3</li>
-        </ul>
-    </div>
+    <!-- The stack in the order the data flows: from the chain, through the scanner and database, to the page. -->
+    <dl class="tech-stack">
+        <div>
+            <dt>node</dt>
+            <dd>Bitcoin Knots</dd>
+        </div>
+        <div>
+            <dt>scan</dt>
+            <dd>C# / .NET<span aria-hidden="true"> · </span><span class="visually-hidden">, </span>Entity Framework</dd>
+        </div>
+        <div>
+            <dt>store</dt>
+            <dd>PostgreSQL</dd>
+        </div>
+        <div>
+            <dt>serve</dt>
+            <dd>Blazor Server</dd>
+        </div>
+    </dl>
 </div>
 
 <style>
