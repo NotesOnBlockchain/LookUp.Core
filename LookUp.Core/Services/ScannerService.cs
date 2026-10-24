@@ -3,8 +3,8 @@ using LookUp.Core.Rpc.Models;
 using LookUp.Helpers;
 using LookUp.Models;
 using LookUp.Scanner.DataBase;
-using LookUp.Scanner.LastScannedBlockHeight;
 using NBitcoin;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -14,18 +14,14 @@ namespace LookUp.Scanner.Services
     {
         private readonly int batchSize = 20;
 
-        public ScannerService(IRPCClient rpcClient, LastScannedBlockHeightHolder lastScanned, ScanChannel scanChannel)
+        public ScannerService(IRPCClient rpcClient, IServiceScopeFactory scopeFactory)
         {
             RpcClient = rpcClient;
-            LastScannedBlockHeight = lastScanned;
-            ScanChannel = scanChannel;
-           
+            ScopeFactory = scopeFactory;
         }
 
         public IRPCClient RpcClient { get; }
-        public LastScannedBlockHeightHolder LastScannedBlockHeight { get; }
-
-        public ScanChannel ScanChannel { get; }
+        public IServiceScopeFactory ScopeFactory { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -56,35 +52,56 @@ namespace LookUp.Scanner.Services
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             var tipHeight = (int)blockchainInfo.Blocks;
 
-            if (tipHeight > LastScannedBlockHeight.BlockHeight)
+            int nextBlockHeight;
+            using (var scope = ScopeFactory.CreateScope())
             {
-                for (int height = LastScannedBlockHeight.BlockHeight; height < tipHeight + 1; height++)
+                var messageRepo = scope.ServiceProvider.GetRequiredService<MessageRepository>();
+                nextBlockHeight = await messageRepo.GetNextBlockHeightAsync(stoppingToken)
+                    ?? throw new InvalidOperationException("Scan progress is missing from the database.");
+            }
+
+            if (tipHeight > nextBlockHeight)
+            {
+                for (int height = nextBlockHeight; height < tipHeight + 1; height++)
                 {
                     VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
 
-                    await ProcessBlockAsync(block);
+                    await ProcessBlockAsync(block, stoppingToken);
                 }
             }
         }
 
-        private async Task ProcessBlockAsync(VerboseBlockInfo block)
+        private async Task ProcessBlockAsync(VerboseBlockInfo block, CancellationToken stoppingToken)
         {
+            var messages = new List<MessageModel>();
+
             foreach (var tx in block.Transactions) 
             {
-                await ProcessTransaction(tx);
+                if (TryExtractMessage(tx, out MessageModel? message))
+                {
+                    messages.Add(message);
+                }
             }
 
-            LastScannedBlockHeight.IncreaseLastScannedBlockHeight((int)block.Height + 1); // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
+            // A fresh scope per block keeps the DbContext from tracking every message of a long scan.
+            using var scope = ScopeFactory.CreateScope();
+            var messageRepo = scope.ServiceProvider.GetRequiredService<MessageRepository>();
+
+            // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
+            await messageRepo.SaveBlockAsync(messages, (int)block.Height + 1, stoppingToken);
+
             Logger.Logger.LogInfo($"Successfully scanned Block Height {block.Height}. Transaction Count: {block.Transactions.Count()}");
         }
 
-        private async Task ProcessTransaction(VerboseTransactionInfo tx)
+        private static bool TryExtractMessage(VerboseTransactionInfo tx, [NotNullWhen(true)] out MessageModel? messageModel)
         {
+            messageModel = null;
+
             var opReturnOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey.ExtractScriptCode(-1).ToString().Contains("OP_RETURN"));
 
             if (opReturnOutput is null)
             {
-                return;
+                return false;
             }
 
             var script = opReturnOutput.ScriptPubKey.ExtractScriptCode(-1);
@@ -92,15 +109,18 @@ namespace LookUp.Scanner.Services
 
             if (parts.Length < 2) 
             {
-                return;
+                return false;
             }
 
             string hex = parts[1];
 
             if (HexChecker.FilterOutMessages(hex, out string? message) && message is not null)
             {
-                await ScanChannel.MessageChannel.Writer.WriteAsync(new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime));
+                messageModel = new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime);
+                return true;
             }
+
+            return false;
         }
     }
 }

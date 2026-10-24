@@ -57,6 +57,19 @@ namespace LookUp.Core.Migrations
 
                     b.ToTable("Messages");
                 });
+
+            modelBuilder.Entity("LookUp.Scanner.DataBase.ScanProgress", b =>
+                {
+                    b.Property<int>("ID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NextBlockHeight")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("ScanProgress");
+                });
 #pragma warning restore 612, 618
         }
     }

@@ -17,21 +17,51 @@ namespace LookUp.Scanner.DataBase
              return _dBContext.Messages.ToList();
         }
 
-        public void AddMessage(MessageModel message)
+        public async Task<int?> GetNextBlockHeightAsync(CancellationToken cancellationToken)
         {
-            try
+            var progress = await _dBContext.ScanProgress.AsNoTracking()
+                .SingleOrDefaultAsync(p => p.ID == ScanProgress.SingletonID, cancellationToken);
+
+            return progress?.NextBlockHeight;
+        }
+
+        public async Task CreateScanProgressAsync(int nextBlockHeight, CancellationToken cancellationToken)
+        {
+            _dBContext.ScanProgress.Add(new ScanProgress { NextBlockHeight = nextBlockHeight });
+            await _dBContext.SaveChangesAsync(cancellationToken);
+        }
+
+        // Stores a block's messages and advances the scan progress past it. A single SaveChanges runs in one
+        // transaction, so either both are stored or neither is, and a failure is thrown to the caller to retry the block.
+        public async Task SaveBlockAsync(IReadOnlyList<MessageModel> messages, int nextBlockHeight, CancellationToken cancellationToken)
+        {
+            if (messages.Count > 0)
             {
-                _dBContext.Messages.Add(message);
-                _dBContext.SaveChanges();
+                // A rescanned block or a re-mined transaction can bring messages that are already stored.
+                // Inserting them would violate the (TransactionID, Hex) constraint and roll back the whole block.
+                var transactionIds = messages.Select(m => m.TransactionID).ToList();
+                var stored = await _dBContext.Messages
+                    .Where(m => transactionIds.Contains(m.TransactionID))
+                    .Select(m => new { m.TransactionID, m.Hex })
+                    .ToListAsync(cancellationToken);
+                var storedKeys = stored.Select(s => (s.TransactionID, s.Hex)).ToHashSet();
+
+                foreach (var message in messages)
+                {
+                    if (storedKeys.Contains((message.TransactionID, message.Hex)))
+                    {
+                        Logger.Logger.LogWarning($"Message already stored, skipping. TxID: {message.TransactionID}");
+                        continue;
+                    }
+
+                    _dBContext.Messages.Add(message);
+                }
             }
-            catch (DbUpdateException ex) when (ex.InnerException!.Message.Contains("duplicate key value"))
-            {
-                Logger.Logger.LogWarning(ex);
-            }
-            catch (Exception ex) 
-            {
-                Logger.Logger.LogCritical(ex);
-            }
+
+            var progress = await _dBContext.ScanProgress.SingleAsync(p => p.ID == ScanProgress.SingletonID, cancellationToken);
+            progress.NextBlockHeight = nextBlockHeight;
+
+            await _dBContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<List<MessageModel>> FindAsync(string query)

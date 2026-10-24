@@ -7,6 +7,8 @@ namespace LookUp.Scanner.DataBase
     {
         public DbSet<MessageModel> Messages { get; set; }
 
+        public DbSet<ScanProgress> ScanProgress { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MessageModel>().HasAlternateKey(x => new { x.TransactionID, x.Hex });
@@ -17,6 +19,9 @@ namespace LookUp.Scanner.DataBase
             modelBuilder.Entity<MessageModel>()
                 .HasIndex(x => x.BlockMinedAt);
 
+            modelBuilder.Entity<ScanProgress>()
+                .Property(x => x.ID)
+                .ValueGeneratedNever();
 
         }
     }

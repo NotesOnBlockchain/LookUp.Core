@@ -1,13 +1,11 @@
 ﻿using LookUp.Config;
 using LookUp.Core.Rpc;
-using LookUp.Core.Services;
 using LookUp.Helpers;
 using LookUp.Logger;
 using LookUp.Scanner;
 using LookUp.Scanner.Cache;
 using LookUp.Scanner.DataBase;
 using LookUp.Scanner.Helpers;
-using LookUp.Scanner.LastScannedBlockHeight;
 using LookUp.Scanner.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -42,20 +40,12 @@ public class Startup
         MinimalRPCClient myRPCClient = new MinimalRPCClient(rpcClient);
         services.AddSingleton<IRPCClient>(serviceProvider => myRPCClient);
 
-        string lastScannedBlockHeightFilePath = Path.Combine(dataDir, "LastScannedBlockHeight.txt");
-        var lastScannedBlockHeight = LastScannedBlockHeightHolder.LoadFromFile(lastScannedBlockHeightFilePath);
-        services.AddSingleton<LastScannedBlockHeightHolder>(services => lastScannedBlockHeight);
-
-        var scanChannel = new ScanChannel();
-        services.AddSingleton(scanChannel);
-
         services.AddDbContextPool<MessageDatabaseContext>(options =>
             options.UseNpgsql(config.SQLConnectionString));
 
         services.AddScoped<MessageRepository>();
 
         services.AddHostedService<ScannerService>();
-        services.AddHostedService<DataBaseWriterService>();
 
         services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
 
