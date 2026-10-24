@@ -284,6 +284,7 @@ h1:focus {
 
 .card-body {
     padding: 20px;
+    margin: 0;
 }
 
 .card-row {
@@ -292,11 +293,15 @@ h1:focus {
     flex-direction: column;
 }
 
-    .card-row label {
+    .card-row dt {
         font-weight: bold;
         color: #007acc;
         margin-bottom: 5px;
         font-size: 0.9rem;
+    }
+
+    .card-row dd {
+        margin: 0;
     }
 
 .value {

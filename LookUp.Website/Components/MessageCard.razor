@@ -6,40 +6,44 @@
        target="_blank"
        rel="noopener noreferrer">
         <div class="card-header">
-            <h3>Transaction Details</h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+            <h3>Transaction Details<span class="visually-hidden"> for @ShortTransactionID</span></h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                 <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
                 <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
             </svg>
         </div>
+        <span class="visually-hidden">(opens mempool.space in a new tab)</span>
     </a>
-    <div class="card-body">
+    <dl class="card-body">
         <div class="card-row">
-            <label>Transaction ID:</label>
-            <span class="value">@Message.TransactionID</span>
+            <dt>Transaction ID:</dt>
+            <dd class="value">@Message.TransactionID</dd>
         </div>
         <div class="card-row">
-            <label>Message:</label>
-            <span class="value">@Message.Message</span>
+            <dt>Message:</dt>
+            <dd class="value">@Message.Message</dd>
         </div>
         <div class="card-row">
-            <label>Hex:</label>
-            <span class="value">@Message.Hex</span>
+            <dt>Hex:</dt>
+            <dd class="value">@Message.Hex</dd>
         </div>
         <div class="card-row">
-            <label>Block Hash:</label>
-            <span class="value">@Message.BlockHash</span>
+            <dt>Block Hash:</dt>
+            <dd class="value">@Message.BlockHash</dd>
         </div>
         <div class="card-row">
-            <label>Block Mined At:</label>
-            <span class="value">@FormatMinedAt(Message.BlockMinedAt)</span>
+            <dt>Block Mined At:</dt>
+            <dd class="value">@FormatMinedAt(Message.BlockMinedAt)</dd>
         </div>
-    </div>
+    </dl>
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public MessageModel Message { get; set; } = default!;
+
+    // Enough of the TxID to tell cards apart when a screen reader lists headings or links.
+    private string ShortTransactionID => Message.TransactionID.Length > 8 ? Message.TransactionID[..8] + "…" : Message.TransactionID;
 
     // Shown in UTC, because the server can't see the visitor's time zone and date searches match whole UTC days.
     private static string FormatMinedAt(DateTimeOffset minedAt) =>
