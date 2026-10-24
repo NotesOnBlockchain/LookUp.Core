@@ -1,6 +1,6 @@
 ﻿@page "/"
 @implements IDisposable
-@inject HttpClient HttpClient
+@inject IHttpClientFactory HttpClientFactory
 @inject WebsiteConfig Config
 
 <!-- Landing page - example messages -->
@@ -24,13 +24,16 @@
                        id="search-query"
                        @bind="searchBarContent"
                        @bind:event="oninput"
-                       placeholder="Search by TxID, Message, Date..."
+                       maxlength="@Constants.Constants.MaxSearchQueryLength"
+                       aria-describedby="search-hint"
+                       placeholder="TxID, block hash, hex, message or date"
                        class="search-input" />
 
                 <button type="submit" class="search-button" disabled="@isLoading">
                     Search
                 </button>
             </form>
+            <p id="search-hint" class="search-hint">Paste a transaction ID, block hash or full hex, type words from the message, or enter a date as YYYY-MM-DD (UTC).</p>
         </div>
 
         <div class="cards-container">
@@ -73,9 +76,9 @@
     <h1>About Look Up</h1>
 
     <p>It's a small project that scans the Bitcoin blockchain for human-readable messages in transactions.</p>
-    <p>This page lets you search and find for your messages on the blockchain via Message, Transaction ID, Hex or Date.</p>
+    <p>This page lets you find messages on the blockchain by transaction ID, block hash or full hex (exact match), by words in the message, or by the UTC date of the block.</p>
 
-    <p>The blockchain is full of noise and alt coin contracts that we need to filter out. Check the active filters <a href="/activefilters" class="github-link">here</a>.</p>
+    <p>The blockchain is full of noise and alt coin contracts that we need to filter out. Check the full set of active filter rules <a href="/activefilters" class="github-link">here</a>.</p>
 
     <p style="font-family: sans-serif; font-size: 1.1rem;">
         Check out the source code
@@ -138,6 +141,12 @@
     .search-note {
         flex-basis: 100%;
         margin: 0;
+    }
+
+    .search-hint {
+        max-width: 600px;
+        margin: 0 auto;
+        font-size: 0.95rem;
     }
 
     .search-button:disabled {
@@ -278,6 +287,11 @@
 
         string query = searchBarContent.Trim();
 
+        // Transaction IDs, block hashes and hex are stored lowercase and matched exactly, so pasted uppercase hex would find nothing.
+        // Lowercasing is harmless for message search, which ignores case.
+        if (query.All(Uri.IsHexDigit))
+            query = query.ToLowerInvariant();
+
         isTooFewChars = query.Length < 3;
         if (isTooFewChars)
             return;
@@ -293,7 +307,8 @@
             string searchQuery = Uri.EscapeDataString(query);
 
             using var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BackendUri}/search?query={searchQuery}");
-            using var response = await HttpClient.SendAsync(request, cancellationToken);
+            var httpClient = HttpClientFactory.CreateClient();
+            using var response = await httpClient.SendAsync(request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
