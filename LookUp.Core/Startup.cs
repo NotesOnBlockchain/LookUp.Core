@@ -45,11 +45,13 @@ public class Startup
 
         services.AddScoped<MessageRepository>();
 
+        services.AddSingleton<ScanStatus>();
         services.AddHostedService<ScannerService>();
 
         services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
 
-        services.AddMemoryCache();
+        // With a SizeLimit, every entry must set Size; MessageModelIdempotencyCache is the only user and counts each search as 1.
+        services.AddMemoryCache(options => options.SizeLimit = MessageModelIdempotencyCache.MaxEntries);
 
         services.AddSingleton<MessageModelIdempotencyCache>();
 

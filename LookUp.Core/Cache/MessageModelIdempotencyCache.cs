@@ -6,6 +6,10 @@ namespace LookUp.Scanner.Cache
 {
     public class MessageModelIdempotencyCache
     {
+        // Distinct searches the cache keeps at once. Each entry holds at most MaxSearchResults messages, a few tens of KB.
+        // When it is full, new searches still run but aren't cached until older entries expire or are compacted.
+        public const int MaxEntries = 1000;
+
         private readonly IMemoryCache _memoryCache;
         private object _memoryCacheLock = new object();
 
@@ -16,7 +20,8 @@ namespace LookUp.Scanner.Cache
 
         private static MemoryCacheEntryOptions IdempotencyEntryOptions { get; } = new()
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+            Size = 1
         };
 
         public async Task<List<MessageModel>> GetCachedResultAsync(string request, Func<string, CancellationToken, Task<List<MessageModel>>> action, CancellationToken cancellationToken = default)

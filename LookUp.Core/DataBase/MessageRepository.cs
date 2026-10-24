@@ -39,8 +39,9 @@ namespace LookUp.Scanner.DataBase
         {
             if (messages.Count > 0)
             {
-                // A rescanned block or a re-mined transaction can bring messages that are already stored.
-                // Inserting them would violate the (TransactionID, Hex) constraint and roll back the whole block.
+                // A rescanned block or a re-mined transaction can bring messages that are already stored, and one
+                // transaction can repeat the same OP_RETURN data. Inserting either would violate the (TransactionID, Hex)
+                // constraint and roll back the whole block.
                 var transactionIds = messages.Select(m => m.TransactionID).ToList();
                 var stored = await _dBContext.Messages
                     .Where(m => transactionIds.Contains(m.TransactionID))
@@ -50,9 +51,10 @@ namespace LookUp.Scanner.DataBase
 
                 foreach (var message in messages)
                 {
-                    if (storedKeys.Contains((message.TransactionID, message.Hex)))
+                    // Add returns false for a key that is stored or was already added from this block.
+                    if (!storedKeys.Add((message.TransactionID, message.Hex)))
                     {
-                        Logger.Logger.LogWarning($"Message already stored, skipping. TxID: {message.TransactionID}");
+                        Logger.Logger.LogWarning($"Message already stored or repeated in this block, skipping. TxID: {message.TransactionID}");
                         continue;
                     }
 

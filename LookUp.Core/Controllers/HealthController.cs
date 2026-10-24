@@ -1,6 +1,7 @@
 ﻿using LookUp.Core.Rpc;
 using LookUp.Scanner.Cache;
 using LookUp.Scanner.DataBase;
+using LookUp.Scanner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NBitcoin;
@@ -12,11 +13,13 @@ namespace LookUp.Scanner.Controllers
     {
         private readonly IRPCClient _rpcClient;
         private readonly MessageDatabaseContext _dbContext;
+        private readonly ScanStatus _scanStatus;
 
-        public HealthController(IRPCClient rpcClient, MessageDatabaseContext databaseContext)
+        public HealthController(IRPCClient rpcClient, MessageDatabaseContext databaseContext, ScanStatus scanStatus)
         {
             _rpcClient = rpcClient;
             _dbContext = databaseContext;
+            _scanStatus = scanStatus;
         }
 
         [HttpGet("/health")]
@@ -28,12 +31,18 @@ namespace LookUp.Scanner.Controllers
             bool rpcResult = await CheckRpcConnectionAsync(cts.Token);
             bool dbResult = await CheckDatabaseConnectionAsync(cts.Token);
 
+            // A stalled scanner is reported but doesn't fail the check: the website waits for this check to pass before
+            // it starts, and search keeps working while scanning is stuck.
             bool healthy = rpcResult && dbResult;
+            var scan = _scanStatus.Get();
 
             object result = new
             {
                 Rpc = rpcResult ? "healthy" : "failed!",
-                Database = dbResult ? "healthy" : "failed!"
+                Database = dbResult ? "healthy" : "failed!",
+                Scanner = scan.Stalled ? "stalled!" : "healthy",
+                NextBlockHeight = scan.NextBlockHeight,
+                LastProgressAt = scan.LastProgressAt
             };
 
             return healthy ? Ok(result) : StatusCode(503, result);

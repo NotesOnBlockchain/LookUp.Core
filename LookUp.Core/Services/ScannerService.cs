@@ -4,7 +4,6 @@ using LookUp.Helpers;
 using LookUp.Models;
 using LookUp.Scanner.DataBase;
 using NBitcoin;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -17,14 +16,16 @@ namespace LookUp.Scanner.Services
         // Blocks at the tip can still be replaced by a reorg; only scan blocks with at least this many blocks on top.
         private const int RequiredConfirmations = 1;
 
-        public ScannerService(IRPCClient rpcClient, IServiceScopeFactory scopeFactory)
+        public ScannerService(IRPCClient rpcClient, IServiceScopeFactory scopeFactory, ScanStatus scanStatus)
         {
             RpcClient = rpcClient;
             ScopeFactory = scopeFactory;
+            ScanStatus = scanStatus;
         }
 
         public IRPCClient RpcClient { get; }
         public IServiceScopeFactory ScopeFactory { get; }
+        public ScanStatus ScanStatus { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -63,11 +64,19 @@ namespace LookUp.Scanner.Services
                     ?? throw new InvalidOperationException("Scan progress is missing from the database.");
             }
 
+            // Being up to date counts as progress, so an idle scanner isn't reported as stalled.
+            if (nextBlockHeight > tipHeight - RequiredConfirmations)
+            {
+                ScanStatus.ReportProgress(nextBlockHeight);
+            }
+
             for (int height = nextBlockHeight; height <= tipHeight - RequiredConfirmations; height++)
             {
                 VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
 
                 await ProcessBlockAsync(block, stoppingToken);
+
+                ScanStatus.ReportProgress(height + 1);
             }
         }
 
@@ -77,10 +86,7 @@ namespace LookUp.Scanner.Services
 
             foreach (var tx in block.Transactions) 
             {
-                if (TryExtractMessage(tx, out MessageModel? message))
-                {
-                    messages.Add(message);
-                }
+                messages.AddRange(ExtractMessages(tx));
             }
 
             // A fresh scope per block keeps the DbContext from tracking every message of a long scan.
@@ -93,34 +99,40 @@ namespace LookUp.Scanner.Services
             Logger.Logger.LogInfo($"Successfully scanned Block Height {block.Height}. Transaction Count: {block.Transactions.Count()}");
         }
 
-        private static bool TryExtractMessage(VerboseTransactionInfo tx, [NotNullWhen(true)] out MessageModel? messageModel)
+        // A transaction can carry several OP_RETURN outputs; each one is checked on its own.
+        private static IEnumerable<MessageModel> ExtractMessages(VerboseTransactionInfo tx)
         {
-            messageModel = null;
-
-            var opReturnOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey.ExtractScriptCode(-1).ToString().Contains("OP_RETURN"));
-
-            if (opReturnOutput is null)
+            foreach (var output in tx.Outputs)
             {
-                return false;
+                var script = output.ScriptPubKey.ExtractScriptCode(-1).ToString();
+
+                if (!script.Contains("OP_RETURN"))
+                {
+                    continue;
+                }
+
+                var parts = script.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length < 2) 
+                {
+                    continue;
+                }
+
+                string hex = parts[1];
+
+                // Non-standard scripts can follow OP_RETURN with an opcode instead of data, e.g. "OP_RETURN OP_CHECKSIG".
+                // That isn't a message, and decoding it as hex would throw and fail the block on every retry.
+                if (!hex.All(char.IsAsciiHexDigit))
+                {
+                    Logger.Logger.LogWarning($"Skipping OP_RETURN output that doesn't start with pushed data. TxID: {tx.Id}");
+                    continue;
+                }
+
+                if (HexChecker.FilterOutMessages(hex, out string? message) && message is not null)
+                {
+                    yield return new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime);
+                }
             }
-
-            var script = opReturnOutput.ScriptPubKey.ExtractScriptCode(-1);
-            var parts = script.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length < 2) 
-            {
-                return false;
-            }
-
-            string hex = parts[1];
-
-            if (HexChecker.FilterOutMessages(hex, out string? message) && message is not null)
-            {
-                messageModel = new MessageModel(new Guid(), tx.Id.ToString(), message, hex, tx.BlockInfo.BlockHash.ToString(), tx.BlockInfo.BlockTime);
-                return true;
-            }
-
-            return false;
         }
     }
 }
