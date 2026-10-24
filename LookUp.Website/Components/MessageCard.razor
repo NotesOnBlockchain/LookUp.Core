@@ -4,14 +4,18 @@
 @inject NavigationManager Navigation
 
 <article class="message-card">
-    <h3 class="message-text" dir="auto">@Message.Message</h3>
+    <h3 class="message-text" dir="auto">
+        <span class="message-plain">@Message.Message</span>
+        <!-- The raw bytes, shown only while the message "decodes" into view. -->
+        <span class="message-hex" dir="ltr" aria-hidden="true">@Message.Hex</span>
+    </h3>
     <p class="message-date">Mined <time datetime="@Message.BlockMinedAt.UtcDateTime.ToString("o", CultureInfo.InvariantCulture)">@FormatMinedAt(Message.BlockMinedAt)</time></p>
 
     <dl class="message-meta">
         <div class="meta-row">
             <dt class="meta-head">
                 Transaction ID
-                <button type="button" class="card-action card-action--small" @onclick="CopyTransactionId">
+                <button type="button" class="card-action card-action--small @StateClassFor(CopyTarget.TransactionId)" @onclick="CopyTransactionId">
                     @(LabelFor(CopyTarget.TransactionId, "Copy"))<span class="visually-hidden"> transaction ID</span>
                 </button>
             </dt>
@@ -34,7 +38,7 @@
     </details>
 
     <div class="message-actions">
-        <button type="button" class="card-action" @onclick="CopyLink">
+        <button type="button" class="card-action @StateClassFor(CopyTarget.Link)" @onclick="CopyLink">
             @(LabelFor(CopyTarget.Link, "Copy link"))<span class="visually-hidden"> to this message</span>
         </button>
         <a class="message-link"
@@ -70,6 +74,10 @@
 
     private string LabelFor(CopyTarget target, string idle) =>
         copiedTarget != target ? idle : copyFailed ? "Copy failed – select the text instead" : "Copied";
+
+    // Tints the button while its feedback label shows: accent for success, warm for failure.
+    private string StateClassFor(CopyTarget target) =>
+        copiedTarget != target ? string.Empty : copyFailed ? "is-failed" : "is-done";
 
     private Task CopyLink() => CopyAsync(CopyTarget.Link, ShareLink, "Link to this message copied.");
 

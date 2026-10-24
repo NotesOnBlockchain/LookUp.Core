@@ -3,6 +3,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject WebsiteConfig Config
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <!-- Landing page - search first, example messages below -->
 <div class="home-container">
@@ -332,6 +333,19 @@
         cursor: pointer;
         font-size: 16px;
         font-weight: 500;
+        transition: background-color 150ms ease, transform 120ms ease-out;
+    }
+
+    @@media (prefers-reduced-motion: no-preference) {
+        .search-button:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+    }
+
+    /* The empty and error panels replace the spinner with a short fade, so the change of state reads as one. */
+    .search-error,
+    .search-empty {
+        animation: fade-in 200ms ease-out both;
     }
 
         /* The hero's search button matches the field's height and weight; Try again keeps the regular size. */
@@ -521,7 +535,19 @@
     // A search from the address runs once the page is interactive, not during prerendering, so the backend is queried once.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender || string.IsNullOrWhiteSpace(QueryFromUrl))
+        if (!firstRender)
+            return;
+
+        // The example messages decode as they scroll into view; purely decorative, so a failure here is ignored.
+        try
+        {
+            await JS.InvokeVoidAsync("lookUpDecode.observeExamples");
+        }
+        catch (JSException)
+        {
+        }
+
+        if (string.IsNullOrWhiteSpace(QueryFromUrl))
             return;
 
         string query = QueryFromUrl.Trim();
