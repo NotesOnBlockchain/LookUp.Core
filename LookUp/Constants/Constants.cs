@@ -14,5 +14,8 @@
 
         // Maximum number of messages a single search returns. The website uses it to tell visitors when results are cut off.
         public const int MaxSearchResults = 20;
+
+        // Longer queries get an empty result from the Scanner. The website's search box enforces the same limit.
+        public const int MaxSearchQueryLength = 200;
     }
 }

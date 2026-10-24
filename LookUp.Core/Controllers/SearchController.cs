@@ -19,7 +19,7 @@ namespace LookUp.Scanner.Controllers
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {
-            if (query.Length > 200)
+            if (query.Length > Constants.Constants.MaxSearchQueryLength)
                 return Ok(Enumerable.Empty<Message>());
 
             using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
