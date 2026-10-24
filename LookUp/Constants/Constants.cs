@@ -11,5 +11,8 @@
         public const int DefaultRegTestBitcoinCorePort = 18443;
 
         public static readonly string DefaultBackendUri = $"http://localhost:37127";
+
+        // Maximum number of messages a single search returns. The website uses it to tell visitors when results are cut off.
+        public const int MaxSearchResults = 20;
     }
 }

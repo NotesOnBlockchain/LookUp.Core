@@ -73,7 +73,7 @@ namespace LookUp.Scanner.DataBase
 
             return await combined
                 .OrderByDescending(m => m.BlockMinedAt)
-                .Take(20)
+                .Take(Constants.Constants.MaxSearchResults)
                 .ToListAsync();
 
         }

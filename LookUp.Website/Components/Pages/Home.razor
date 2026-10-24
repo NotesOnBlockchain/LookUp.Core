@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using System.Globalization
+@implements IDisposable
 @inject HttpClient HttpClient
 @inject WebsiteConfig Config
 
@@ -41,7 +43,7 @@
                     </div>
                     <div class="card-row">
                         <label>Block Mined At:</label>
-                        <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                        <span class="value">@FormatMinedAt(message.BlockMinedAt)</span>
                     </div>
                 </div>
             </div>
@@ -52,16 +54,17 @@
     <div class="home-container">
         <h1>Find your message</h1>
         <div class="search-container">
-            <div class="search-form">
+            <form class="search-form" @onsubmit="SendSearchReq">
                 <input type="text"
                        @bind="searchBarContent"
+                       @bind:event="oninput"
                        placeholder="Search by TxID, Message, Date..."
                        class="search-input" />
 
-                <button @onclick="SendSearchReq" class="search-button" disabled="@isLoading">
+                <button type="submit" class="search-button" disabled="@isLoading">
                     Search
                 </button>
-            </div>
+            </form>
         </div>
 
         <div class="cards-container">
@@ -71,8 +74,21 @@
                     <div class="spinner large"></div>
                 </div>
             }
+            else if (searchError is not null)
+            {
+                <h3>@searchError</h3>
+            }
+            else if (isTooFewChars)
+            {
+                <h3>Please enter at least 3 characters...</h3>
+            }
             else if (searchResult.Count > 0)
             {
+                @if (searchResult.Count >= Constants.Constants.MaxSearchResults)
+                {
+                    <p class="search-note">Showing the @Constants.Constants.MaxSearchResults most recent matches. Use a more specific search to find older ones.</p>
+                }
+
                 @foreach (var message in searchResult)
                 {
                     <div class="message-card">
@@ -107,17 +123,13 @@
                             </div>
                             <div class="card-row">
                                 <label>Block Mined At:</label>
-                                <span class="value">@message.BlockMinedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                <span class="value">@FormatMinedAt(message.BlockMinedAt)</span>
                             </div>
                         </div>
                     </div>
                 }
             }
-            else if (isTooFewChars && isRequested)
-            {
-                <h3>Please enter at least 3 characters...</h3>
-            }
-            else if (searchResult.Count == 0 && isRequested)
+            else if (isRequested)
             {
                 <h3>No Results...</h3>
             }
@@ -190,6 +202,11 @@
         to {
             transform: rotate(360deg);
         }
+    }
+
+    .search-note {
+        flex-basis: 100%;
+        margin: 0;
     }
 
     .search-button:disabled {
@@ -303,55 +320,82 @@
         )
     };
 
+    // Upper bound for a single search, including reading the response.
+    private static readonly TimeSpan SearchTimeout = TimeSpan.FromSeconds(60);
+
+    private const string SearchFailedMessage = "Search is unavailable right now. Please try again in a moment.";
+    private const string SearchTimedOutMessage = "The search took too long. Please try again or use a more specific search.";
+
     private string searchBarContent = string.Empty;
     private List<MessageModel> searchResult = new List<MessageModel>();
+    private string? searchError;
     private bool isRequested = false;
     private bool isLoading = false;
     private bool isTooFewChars = false;
 
     private CancellationTokenSource? _cts;
 
-
     private async Task SendSearchReq()
     {
+        // The button is disabled while loading, but Enter can still submit the form.
+        if (isLoading)
+            return;
+
+        isRequested = true;
+        searchError = null;
+        searchResult = new List<MessageModel>();
+
+        string query = searchBarContent.Trim();
+
+        isTooFewChars = query.Length < 3;
+        if (isTooFewChars)
+            return;
+
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource(SearchTimeout);
+        var cancellationToken = _cts.Token;
+
+        isLoading = true;
+
         try
         {
-            _cts?.Cancel();
-            _cts = new CancellationTokenSource();
+            string searchQuery = Uri.EscapeDataString(query);
 
-            isRequested = true;
-
-            isTooFewChars = searchBarContent.Length < 3 ? true : false;
-            if (isTooFewChars)
-                return;
-
-            string searchQuery = Uri.EscapeDataString(searchBarContent);
-
-            isLoading = true;
-
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BackendUri}/search?query={searchQuery}");
-            using var response = await HttpClient!.SendAsync(request, _cts.Token);
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"{Config.BackendUri}/search?query={searchQuery}");
+            using var response = await HttpClient.SendAsync(request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                var body = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine($"Search failed. Status: {response.StatusCode}, Body: {body}");
-
-                searchResult = new List<MessageModel>();
+                Logger.Logger.LogWarning($"Search failed. Status: {(int)response.StatusCode} {response.StatusCode}");
+                searchError = SearchFailedMessage;
                 return;
             }
 
-            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>() ?? new List<MessageModel>();
+            searchResult = await response.Content.ReadFromJsonAsync<List<MessageModel>>(cancellationToken) ?? new List<MessageModel>();
+        }
+        catch (OperationCanceledException)
+        {
+            // Either the timeout elapsed or the page was closed (Dispose); the message is only seen in the first case.
+            Logger.Logger.LogWarning($"Search was cancelled or timed out after {SearchTimeout.TotalSeconds} seconds.");
+            searchError = SearchTimedOutMessage;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            searchResult = new List<MessageModel>();
+            Logger.Logger.LogCritical(ex);
+            searchError = SearchFailedMessage;
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    // Shown in UTC, because the server can't see the visitor's time zone and date searches match whole UTC days.
+    private static string FormatMinedAt(DateTimeOffset minedAt) =>
+        minedAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
     }
 }
