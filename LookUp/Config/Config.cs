@@ -51,19 +51,19 @@ namespace LookUp.Config
 
         public static Config LoadFile(string filePath)
         {
-            try
-            {
-                using var cfgFile = File.Open(filePath, FileMode.Open, FileAccess.Read);
-                var decoder = JsonDecoder.FromStream(Decode.ConfigDecode.Config(filePath));
-                var decodingResult = decoder(cfgFile);
-                return decodingResult.Match(cfg => cfg, error => throw new InvalidOperationException(error));
-            }
-            catch (Exception)
+            // Only a missing file is created with defaults. An unreadable file is left untouched and fails startup,
+            // otherwise a typo would silently replace the RPC and database settings with defaults.
+            if (!File.Exists(filePath))
             {
                 var config = new Config(filePath);
-                File.WriteAllTextAsync(filePath, config.EncodeAsJson());
+                config.ToFile();
                 return config;
             }
+
+            using var cfgFile = File.Open(filePath, FileMode.Open, FileAccess.Read);
+            var decoder = JsonDecoder.FromStream(Decode.ConfigDecode.Config(filePath));
+            var decodingResult = decoder(cfgFile);
+            return decodingResult.Match(cfg => cfg, error => throw new InvalidOperationException($"Could not read config file '{filePath}': {error} The file was left unchanged; fix it or delete it to recreate the defaults."));
         }
 
         protected override string EncodeAsJson() => JsonEncoder.ToReadableString(this, ConfigEncode.Config);
