@@ -27,7 +27,7 @@
                        maxlength="@Constants.Constants.MaxSearchQueryLength"
                        aria-describedby="@InputDescribedBy"
                        aria-invalid="@(ShowTooShort ? "true" : null)"
-                       placeholder="TxID, block hash, hex, message or date"
+                       placeholder="Words, TxID, block hash, hex or dates:YYYY-MM-DD"
                        autocomplete="off"
                        spellcheck="false"
                        enterkeyhint="search"
@@ -41,7 +41,8 @@
             {
                 <p id="search-too-short" class="search-inline-error">Type at least 3 characters to search.</p>
             }
-            <p id="search-hint" class="search-hint">Paste a transaction ID, block hash or full hex, type words from the message, or enter a date as YYYY-MM-DD (UTC).</p>
+            @* Shown only as the placeholder; this fuller version stays for screen readers, which can't rely on a placeholder. *@
+            <p id="search-hint" class="visually-hidden">Paste a transaction ID, block hash or full hex, type words from the message, or enter a date as YYYY-MM-DD (UTC).</p>
         </div>
 
         <!-- Announces every search outcome to screen readers; the visible versions are below. -->
@@ -255,12 +256,6 @@
         font-weight: 400;
         letter-spacing: 0.01em;
         color: var(--text-body);
-    }
-
-    .search-hint {
-        max-width: 720px;
-        margin: 0 auto;
-        font-size: 1rem;
     }
 
     .home-container .search-inline-error {
