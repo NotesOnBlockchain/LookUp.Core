@@ -14,6 +14,9 @@ namespace LookUp.Scanner.Services
     {
         private readonly int batchSize = 20;
 
+        // Blocks at the tip can still be replaced by a reorg; only scan blocks with at least this many blocks on top.
+        private const int RequiredConfirmations = 1;
+
         public ScannerService(IRPCClient rpcClient, IServiceScopeFactory scopeFactory)
         {
             RpcClient = rpcClient;
@@ -60,14 +63,11 @@ namespace LookUp.Scanner.Services
                     ?? throw new InvalidOperationException("Scan progress is missing from the database.");
             }
 
-            if (tipHeight >= nextBlockHeight)
+            for (int height = nextBlockHeight; height <= tipHeight - RequiredConfirmations; height++)
             {
-                for (int height = nextBlockHeight; height < tipHeight + 1; height++)
-                {
-                    VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
+                VerboseBlockInfo block = await RpcClient.GetBlockByHeightAsync(height, stoppingToken);
 
-                    await ProcessBlockAsync(block, stoppingToken);
-                }
+                await ProcessBlockAsync(block, stoppingToken);
             }
         }
 
@@ -87,7 +87,7 @@ namespace LookUp.Scanner.Services
             using var scope = ScopeFactory.CreateScope();
             var messageRepo = scope.ServiceProvider.GetRequiredService<MessageRepository>();
 
-            // +1 so we match the tipHeight. BlockHeight starts from zero, but tipHeight from 1.
+            // Heights start at 0 (genesis), so the next block to scan is this one + 1.
             await messageRepo.SaveBlockAsync(messages, (int)block.Height + 1, stoppingToken);
 
             Logger.Logger.LogInfo($"Successfully scanned Block Height {block.Height}. Transaction Count: {block.Transactions.Count()}");
