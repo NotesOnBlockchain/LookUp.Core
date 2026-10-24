@@ -1,48 +1,46 @@
 @using System.Globalization
 
-<div class="message-card">
-    <a class="message-card-link"
+<article class="message-card">
+    <h3 class="message-text" dir="auto">@Message.Message</h3>
+    <p class="message-date">Mined <time datetime="@Message.BlockMinedAt.UtcDateTime.ToString("o", CultureInfo.InvariantCulture)">@FormatMinedAt(Message.BlockMinedAt)</time></p>
+
+    <dl class="message-meta">
+        <div class="meta-row">
+            <dt>Transaction ID</dt>
+            <dd><code>@Message.TransactionID</code></dd>
+        </div>
+    </dl>
+
+    <details class="message-raw">
+        <summary>Block hash and hex</summary>
+        <dl class="message-meta">
+            <div class="meta-row">
+                <dt>Block hash</dt>
+                <dd><code>@Message.BlockHash</code></dd>
+            </div>
+            <div class="meta-row">
+                <dt>Hex</dt>
+                <dd><code>@Message.Hex</code></dd>
+            </div>
+        </dl>
+    </details>
+
+    <a class="message-link"
        href="https://mempool.space/tx/@Message.TransactionID"
        target="_blank"
        rel="noopener noreferrer">
-        <div class="card-header">
-            <h3>Transaction Details<span class="visually-hidden"> for @ShortTransactionID</span></h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
-                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
-            </svg>
-        </div>
-        <span class="visually-hidden">(opens mempool.space in a new tab)</span>
+        View on mempool.space<span class="visually-hidden"> (transaction @ShortTransactionID, opens in a new tab)</span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+        </svg>
     </a>
-    <dl class="card-body">
-        <div class="card-row">
-            <dt>Transaction ID:</dt>
-            <dd class="value">@Message.TransactionID</dd>
-        </div>
-        <div class="card-row">
-            <dt>Message:</dt>
-            <dd class="value">@Message.Message</dd>
-        </div>
-        <div class="card-row">
-            <dt>Hex:</dt>
-            <dd class="value">@Message.Hex</dd>
-        </div>
-        <div class="card-row">
-            <dt>Block Hash:</dt>
-            <dd class="value">@Message.BlockHash</dd>
-        </div>
-        <div class="card-row">
-            <dt>Block Mined At:</dt>
-            <dd class="value">@FormatMinedAt(Message.BlockMinedAt)</dd>
-        </div>
-    </dl>
-</div>
+</article>
 
 @code {
     [Parameter, EditorRequired]
     public MessageModel Message { get; set; } = default!;
 
-    // Enough of the TxID to tell cards apart when a screen reader lists headings or links.
+    // Enough of the TxID to tell links apart when a screen reader lists them.
     private string ShortTransactionID => Message.TransactionID.Length > 8 ? Message.TransactionID[..8] + "…" : Message.TransactionID;
 
     // Shown in UTC, because the server can't see the visitor's time zone and date searches match whole UTC days.

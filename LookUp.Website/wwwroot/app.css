@@ -246,73 +246,89 @@ h1:focus {
     margin: 0 auto;
 }
 
+/* Message card: the note leads; the transaction data is quiet metadata. */
 .message-card {
-    background-color: #1e1e1e;
-    border: 3px solid #1e1e1e;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     width: 350px;
+    padding: 24px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    color: #e6e6e6;
+    text-align: left;
 }
 
-    .message-card:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-        border-color: #007acc;
-    }
-
-.message-card-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-    .message-card-link:hover .message-card {
-        cursor: pointer;
-    }
-
-.card-header {
-    background-color: #252526;
-    padding: 15px;
-    border-bottom: 1px solid #333;
-    border-radius: 8px 8px 0 0;
-    text-align: center;
-}
-
-    .card-header h3 {
+    .message-card .message-text {
         margin: 0;
-        color: #007acc;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.45;
+        color: #f2f2f2;
+        overflow-wrap: anywhere;
+        text-wrap: balance;
     }
 
-.card-body {
-    padding: 20px;
+    .message-card .message-date {
+        margin: -8px 0 0;
+        font-size: 0.875rem;
+        color: #a0a4ab;
+        text-align: left;
+    }
+
+.message-meta {
+    display: grid;
+    gap: 12px;
     margin: 0;
 }
 
-.card-row {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-}
-
-    .card-row dt {
-        font-weight: bold;
-        color: #007acc;
-        margin-bottom: 5px;
-        font-size: 0.9rem;
+    .message-meta dt {
+        margin-bottom: 2px;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        color: #a0a4ab;
     }
 
-    .card-row dd {
+    .message-meta dd {
         margin: 0;
     }
 
-.value {
-    word-break: break-all;
-    padding: 8px;
-    background-color: #2d2d30;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 0.9rem;
-    color: #dcdcdc;
+    .message-meta code {
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: #d4d4d4;
+        word-break: break-all;
+    }
+
+.message-raw summary {
+    width: fit-content;
+    font-size: 0.875rem;
+    color: #c8ccd2;
+    cursor: pointer;
 }
+
+.message-raw[open] summary {
+    margin-bottom: 12px;
+}
+
+.message-link {
+    margin-top: auto;
+    width: fit-content;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #e6e6e6;
+    text-underline-offset: 0.2em;
+}
+
+    .message-link:hover {
+        color: #ffffff;
+    }
+
+    .message-link svg {
+        margin-left: 4px;
+        vertical-align: -1px;
+    }
 
 @media (max-width: 1200px) {
     .cards-container {
