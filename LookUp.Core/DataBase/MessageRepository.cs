@@ -5,6 +5,8 @@ namespace LookUp.Scanner.DataBase
 {
     public class MessageRepository
     {
+        private const string LikeEscapeCharacter = "\\";
+
         private readonly MessageDatabaseContext _dBContext;
 
         public MessageRepository(MessageDatabaseContext databaseContext)
@@ -85,8 +87,10 @@ namespace LookUp.Scanner.DataBase
             var byBlockHash = _dBContext.Messages
                 .Where(m => m.BlockHash == query);
 
+            // The query is matched literally: without escaping, "%%%" or "___" would match every message.
+            string messagePattern = $"%{EscapeLikePattern(query)}%";
             var byMessage = _dBContext.Messages
-                .Where(m => EF.Functions.ILike(m.Message, $"%{query}%"));
+                .Where(m => EF.Functions.ILike(m.Message, messagePattern, LikeEscapeCharacter));
 
             var combined = byTransactionId
                 .Union(byHex)
@@ -107,5 +111,11 @@ namespace LookUp.Scanner.DataBase
                 .ToListAsync();
 
         }
+
+        // Escapes the escape character first, so the backslashes added for % and _ aren't doubled.
+        private static string EscapeLikePattern(string value) =>
+            value.Replace(LikeEscapeCharacter, LikeEscapeCharacter + LikeEscapeCharacter)
+                .Replace("%", LikeEscapeCharacter + "%")
+                .Replace("_", LikeEscapeCharacter + "_");
     }
 }

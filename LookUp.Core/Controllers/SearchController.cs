@@ -19,6 +19,9 @@ namespace LookUp.Scanner.Controllers
         [HttpGet("/search")]
         public async Task<IActionResult> SearchAsync([FromQuery] string query)
         {
+            if (query is null || query.Trim().Length < Constants.Constants.MinSearchQueryLength)
+                return Ok(Enumerable.Empty<Message>());
+
             if (query.Length > Constants.Constants.MaxSearchQueryLength)
                 return Ok(Enumerable.Empty<Message>());
 

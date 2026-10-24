@@ -17,5 +17,9 @@
 
         // Longer queries get an empty result from the Scanner. The website's search box enforces the same limit.
         public const int MaxSearchQueryLength = 200;
+
+        // Shorter queries (after trimming) get an empty result from the Scanner, matching the website's minimum.
+        // Message search needs at least 3 characters for PostgreSQL's trigram index; shorter patterns scan the whole table.
+        public const int MinSearchQueryLength = 3;
     }
 }
