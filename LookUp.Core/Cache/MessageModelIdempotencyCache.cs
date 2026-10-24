@@ -52,7 +52,7 @@ namespace LookUp.Scanner.Cache
 
                     responseTcs!.SetException(ex);
 
-                    Logger.Logger.LogCritical($"Failed to run action. TastCompSource set to expection. {ex}");
+                    Logger.Logger.LogCritical($"Failed to run action. TaskCompletionSource set to exception. {ex}");
                 }
             }
 

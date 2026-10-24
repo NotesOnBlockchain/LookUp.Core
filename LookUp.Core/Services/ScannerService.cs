@@ -11,8 +11,6 @@ namespace LookUp.Scanner.Services
 {
     public class ScannerService : BackgroundService
     {
-        private readonly int batchSize = 20;
-
         // Blocks at the tip can still be replaced by a reorg; only scan blocks with at least this many blocks on top.
         private const int RequiredConfirmations = 1;
 
