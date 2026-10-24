@@ -14,6 +14,50 @@ main {
     }
 }
 
+/* Footer: one centred line of small muted monospace under a hairline, so the page ends without a new section. */
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 8px 24px;
+    max-width: 720px;
+    margin: 24px auto 0;
+    padding: 24px 20px 40px;
+    border-top: 1px solid color-mix(in srgb, var(--text-muted) 25%, transparent);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.site-footer-name {
+    margin: 0;
+}
+
+.site-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .site-footer-links a {
+        color: var(--text-body);
+        text-underline-offset: 0.2em;
+        transition: color 150ms ease;
+    }
+
+        .site-footer-links a:hover {
+            color: var(--text-hover);
+        }
+
+        .site-footer-links a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
 #blazor-error-ui {
     background: var(--surface);
     color: var(--text);
