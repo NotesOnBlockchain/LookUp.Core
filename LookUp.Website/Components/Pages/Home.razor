@@ -19,7 +19,9 @@
         <h1>Find your message</h1>
         <div class="search-container">
             <form class="search-form" @onsubmit="SendSearchReq">
+                <label for="search-query" class="visually-hidden">Search messages</label>
                 <input type="text"
+                       id="search-query"
                        @bind="searchBarContent"
                        @bind:event="oninput"
                        placeholder="Search by TxID, Message, Date..."
