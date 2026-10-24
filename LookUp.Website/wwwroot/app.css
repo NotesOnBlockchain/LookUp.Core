@@ -220,7 +220,8 @@ h1:focus {
     margin: 0 auto;
 }
 
-/* Message card: the note leads; the transaction data is quiet metadata. */
+/* Message card: a decoded transaction record. A small mono header (when, which transaction), then the OP_RETURN
+   payload as quoted text, so the message reads as what someone wrote rather than as the card's title. */
 .message-card {
     display: flex;
     flex-direction: column;
@@ -233,21 +234,73 @@ h1:focus {
     text-align: left;
 }
 
-    .message-card .message-text {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 500;
-        line-height: 1.45;
-        color: var(--text-strong);
-        overflow-wrap: anywhere;
-        text-wrap: balance;
-    }
+.message-head {
+    display: grid;
+    gap: 2px;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
 
     .message-card .message-date {
-        margin: -8px 0 0;
-        font-size: 0.875rem;
-        color: var(--text-muted);
+        margin: 0;
         text-align: left;
+    }
+
+.message-tx {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+    .message-tx code {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: inherit;
+        font-size: inherit;
+        color: var(--text-body);
+    }
+
+.message-payload {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+}
+
+    /* The label runs into a hairline, like a field name in a decoded record. */
+    .message-payload figcaption {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+    }
+
+        .message-payload figcaption::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: currentColor;
+            opacity: 0.35;
+        }
+
+    .message-card .message-text {
+        margin: 0;
+        padding-inline-start: 14px;
+        border-inline-start: 2px solid var(--accent);
+        font-size: 1.0625rem;
+        font-weight: 400;
+        line-height: 1.55;
+        color: var(--text-strong);
+        overflow-wrap: anywhere;
+        text-wrap: pretty;
     }
 
 .message-meta {
@@ -293,13 +346,6 @@ h1:focus {
     align-items: center;
     gap: 8px 24px;
     margin-top: auto;
-}
-
-.meta-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
 }
 
 .card-action {

@@ -9,6 +9,8 @@
 <div class="home-container">
     <!-- Hero: the name at display scale and the search as the one obvious action. -->
     <h1 class="hero-title">
+        <!-- "Look Up" as raw UTF-8 bytes, the way the cards' messages sit in OP_RETURN; decorative, so hidden from screen readers. -->
+        <span class="hero-bytes" aria-hidden="true"><span class="hero-bytes-label">OP_RETURN</span> 4c 6f 6f 6b 20 55 70</span>
         <span class="hero-name">Look Up</span>
         <span class="hero-tagline"><span class="visually-hidden">- </span>Blockchain Message Explorer</span>
     </h1>
@@ -175,17 +177,32 @@
         margin: 0 0 24px;
     }
 
-    /* Hero: the name at display scale; the tagline and the system's teal bar sit under it. */
+    /* Hero: the name at display scale under its own bytes, like a decoded record; the tagline sits under it.
+       The bytes line takes over from the teal bar the other headings carry. */
     .home-container .hero-title {
         margin: clamp(32px, 9vh, 112px) 0 clamp(32px, 5vh, 56px);
         line-height: 1;
     }
 
         .home-container .hero-title::after {
-            width: 120px;
-            height: 4px;
-            margin: 28px auto 0;
+            content: none;
         }
+
+    .hero-bytes {
+        display: block;
+        margin-bottom: 20px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font-size: clamp(0.8125rem, 0.75rem + 0.3vw, 1rem);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        user-select: none;
+    }
+
+    .hero-bytes-label {
+        margin-right: 0.75em;
+        color: var(--text-muted);
+    }
 
     .hero-name {
         display: block;

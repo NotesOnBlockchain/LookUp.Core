@@ -4,20 +4,24 @@
 @inject NavigationManager Navigation
 
 <article class="message-card">
-    <h3 class="message-text" dir="auto">@Message.Message</h3>
-    <p class="message-date">Mined <time datetime="@Message.BlockMinedAt.UtcDateTime.ToString("o", CultureInfo.InvariantCulture)">@FormatMinedAt(Message.BlockMinedAt)</time></p>
-
-    <dl class="message-meta">
-        <div class="meta-row">
-            <dt class="meta-head">
-                Transaction ID
-                <button type="button" class="card-action card-action--small @StateClassFor(CopyTarget.TransactionId)" @onclick="CopyTransactionId">
-                    @(LabelFor(CopyTarget.TransactionId, "Copy"))<span class="visually-hidden"> transaction ID</span>
-                </button>
-            </dt>
-            <dd><code>@Message.TransactionID</code></dd>
+    <!-- Read like a decoded transaction: the record's header, then the OP_RETURN payload it carries. -->
+    <header class="message-head">
+        <p class="message-date"><span class="visually-hidden">Mined </span><time datetime="@Message.BlockMinedAt.UtcDateTime.ToString("o", CultureInfo.InvariantCulture)">@FormatMinedAt(Message.BlockMinedAt)</time></p>
+        <div class="message-tx">
+            <span class="message-tx-label" aria-hidden="true">tx</span>
+            <span class="visually-hidden">Transaction ID </span>
+            @* The full ID stays in the markup, so selecting it still copies all of it; CSS only shortens what shows. *@
+            <code>@Message.TransactionID</code>
+            <button type="button" class="card-action card-action--small @StateClassFor(CopyTarget.TransactionId)" @onclick="CopyTransactionId">
+                @(LabelFor(CopyTarget.TransactionId, "Copy"))<span class="visually-hidden"> transaction ID</span>
+            </button>
         </div>
-    </dl>
+    </header>
+
+    <figure class="message-payload">
+        <figcaption>OP_RETURN</figcaption>
+        <blockquote class="message-text" dir="auto">@Message.Message</blockquote>
+    </figure>
 
     <details class="message-raw">
         <summary>Block hash and hex</summary>
