@@ -1,0 +1,47 @@
+@using System.Globalization
+
+<div class="message-card">
+    <a class="message-card-link"
+       href="https://mempool.space/tx/@Message.TransactionID"
+       target="_blank"
+       rel="noopener noreferrer">
+        <div class="card-header">
+            <h3>Transaction Details</h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+            </svg>
+        </div>
+    </a>
+    <div class="card-body">
+        <div class="card-row">
+            <label>Transaction ID:</label>
+            <span class="value">@Message.TransactionID</span>
+        </div>
+        <div class="card-row">
+            <label>Message:</label>
+            <span class="value">@Message.Message</span>
+        </div>
+        <div class="card-row">
+            <label>Hex:</label>
+            <span class="value">@Message.Hex</span>
+        </div>
+        <div class="card-row">
+            <label>Block Hash:</label>
+            <span class="value">@Message.BlockHash</span>
+        </div>
+        <div class="card-row">
+            <label>Block Mined At:</label>
+            <span class="value">@FormatMinedAt(Message.BlockMinedAt)</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public MessageModel Message { get; set; } = default!;
+
+    // Shown in UTC, because the server can't see the visitor's time zone and date searches match whole UTC days.
+    private static string FormatMinedAt(DateTimeOffset minedAt) =>
+        minedAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " UTC";
+}
