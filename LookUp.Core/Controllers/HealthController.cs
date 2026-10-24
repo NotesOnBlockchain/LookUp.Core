@@ -75,10 +75,9 @@ namespace LookUp.Scanner.Controllers
         {
             try
             {
-                await _dbContext.Database.CanConnectAsync(cancellationToken);
-
-                _dbContext.Database.OpenConnection();
-                _dbContext.Database.CloseConnection();
+                // A round trip to the server: opening a connection alone can be served by an idle pooled one,
+                // and CanConnectAsync returns false without saying why. This throws with the reason instead.
+                await _dbContext.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken);
             }
             catch (Exception ex)
             {

@@ -70,10 +70,8 @@ namespace LookUp.Scanner
                 using var scope = ScopeFactory.CreateScope();
                 MessageDatabaseContext databaseContext = scope.ServiceProvider.GetService<MessageDatabaseContext>() ?? throw new Exception($"Couldn't get {typeof(MessageDatabaseContext)}");
 
-                await databaseContext.Database.CanConnectAsync(cancellationToken);
-
-                databaseContext.Database.OpenConnection();
-                databaseContext.Database.CloseConnection();
+                // A round trip to the server; it throws with the reason if the database can't be reached.
+                await databaseContext.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken);
             }
             catch (Exception ex)
             {
