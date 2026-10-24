@@ -83,8 +83,15 @@
         const entering = [];
         for (const entry of entries) {
             const s = stateOf(entry.target);
-            if (entry.isIntersecting && !s.inView) entering.push(entry.target);
-            s.inView = entry.isIntersecting;
+            // Judged from the element's box rather than entry.isIntersecting, which also counts the reveal's own clip-path:
+            // a block on the viewport edge would otherwise leave and re-enter as it decodes, and decode forever.
+            const box = entry.boundingClientRect;
+            const root = entry.rootBounds;
+            const inView = root
+                ? box.bottom >= root.top && box.top <= root.bottom && box.right >= root.left && box.left <= root.right
+                : entry.isIntersecting;
+            if (inView && !s.inView) entering.push(entry.target);
+            s.inView = inView;
         }
         if (entering.length) decodeBatch(entering);
     }, { threshold: 0 });
