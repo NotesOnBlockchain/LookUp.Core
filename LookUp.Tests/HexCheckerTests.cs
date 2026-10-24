@@ -33,5 +33,38 @@ namespace LookUp.Tests
             Assert.True(isValid);
             Assert.NotNull(message);
         }
+
+        [Theory]
+        [InlineData("Hi")]                  // Shorter than MinMessageLength.
+        [InlineData("0xHello")]             // Starts with BannedMessagePrefix.
+        [InlineData("1234 abc")]            // Under MinLetterRatio.
+        [InlineData("Hello ~ world")]       // '~' is not an allowed character.
+        public void RejectsMessagesBreakingTheTextRules(string text)
+        {
+            string hex = Convert.ToHexString(System.Text.Encoding.UTF8.GetBytes(text));
+
+            Assert.False(HexChecker.FilterOutMessages(hex, out _));
+        }
+
+        [Fact]
+        public void AcceptsMessageAtMaxLength()
+        {
+            string hex = Convert.ToHexString(System.Text.Encoding.UTF8.GetBytes(new string('a', HexChecker.MaxMessageLength)));
+
+            Assert.True(HexChecker.FilterOutMessages(hex, out _));
+            Assert.False(HexChecker.FilterOutMessages(hex + "61", out _));    // One character over.
+        }
+
+        [Fact]
+        public void DescribedRulesMatchTheFilter()
+        {
+            var rules = HexChecker.DescribeRules();
+
+            Assert.Equal(HexChecker.BannedHexPrefixes, rules.BannedHexPrefixes.Select(p => p.Hex));
+            Assert.Contains(rules.BannedHexPrefixes, p => p.Hex == "6f6d6e69" && p.Text == "omni");
+            Assert.Equal(HexChecker.BannedMessageParts, rules.BannedMessageParts);
+            Assert.Contains(rules.Rules, r => r.Contains($"{HexChecker.MinMessageLength} to {HexChecker.MaxMessageLength}"));
+            Assert.Contains(rules.Rules, r => r.Contains(HexChecker.AllowedPunctuation));
+        }
     }
 }

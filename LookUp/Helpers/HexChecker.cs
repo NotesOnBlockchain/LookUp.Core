@@ -1,10 +1,19 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using LookUp.Models;
 
 namespace LookUp.Helpers
 {
     public static class HexChecker
     {
+        public const double MinLetterRatio = 0.4;
+        public const int MinMessageLength = 3;
+        public const int MaxMessageLength = 80;
+        public const string AllowedPunctuation = ".,!?;:-_+=()[]{}\"'@#$%^&*/\\|<>";
+        public const string BannedMessagePrefix = "0x";
+
+        public static readonly string[] BannedExactMessages = { "BRC20PROG" };
+
         public static readonly string[] BannedHexPrefixes =
         {
             "6f6d6e69",     // "omni"
@@ -92,32 +101,50 @@ namespace LookUp.Helpers
 
             // 4. Require human-readable ratio
             int letters = message.Count(char.IsLetter);
-            if (letters < message.Length * 0.4) // At least 40% is a letter
+            if (letters < message.Length * MinLetterRatio)
                 return false;
 
             // 5. Allowed characters only
             bool allowed = message.All(c =>
                 char.IsLetterOrDigit(c) ||
                 char.IsWhiteSpace(c) ||
-                ".,!?;:-_+=()[]{}\"'@#$%^&*/\\|<>".Contains(c)
+                AllowedPunctuation.Contains(c)
             );
 
-            if (!allowed)  
+            if (!allowed)
                 return false;
 
             // 6. Length sanity check
-            if (message.Length < 3 || message.Length > 80)
+            if (message.Length < MinMessageLength || message.Length > MaxMessageLength)
                 return false;
 
             // 7. if it starts with "0x"
-            var charArray = message.ToCharArray();
-            if (charArray[0].Equals('0') && charArray[1].Equals('x'))
+            if (message.StartsWith(BannedMessagePrefix, StringComparison.Ordinal))
                 return false;
 
-            if (message.Equals("BRC20PROG"))
+            if (BannedExactMessages.Contains(message))
                 return false;
 
             return true;
         }
+
+        // Describes FilterOutMessages in words, built from the same values it checks, so the published rules can't drift from the code.
+        public static FilterRules DescribeRules() => new(
+            Summary: "An OP_RETURN output is indexed only if its data passes every rule below, checked in this order.",
+            Rules: new[]
+            {
+                "The data must not start with one of the banned hex prefixes.",
+                "The data is decoded as UTF-8 text.",
+                "The text must not contain any of the banned message parts.",
+                $"At least {(int)(MinLetterRatio * 100)}% of the characters must be letters.",
+                $"Only letters, digits, whitespace and these characters are allowed: {AllowedPunctuation}",
+                $"The text must be {MinMessageLength} to {MaxMessageLength} characters long.",
+                $"The text must not start with \"{BannedMessagePrefix}\".",
+                $"The text must not be exactly one of: {string.Join(", ", BannedExactMessages.Select(m => $"\"{m}\""))}."
+            },
+            BannedHexPrefixes: BannedHexPrefixes
+                .Select(hex => new BannedHexPrefix(hex, Encoding.UTF8.GetString(Convert.FromHexString(hex))))
+                .ToArray(),
+            BannedMessageParts: BannedMessageParts);
     }
 }
