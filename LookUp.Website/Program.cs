@@ -42,16 +42,21 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders =
         ForwardedHeaders.XForwardedFor |
         ForwardedHeaders.XForwardedProto;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 var app = builder.Build();
 
+// First in the pipeline, so everything after it sees the visitor's scheme and IP instead of the Docker gateway's.
+app.UseForwardedHeaders();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    // No UseHsts(): Nginx already sends Strict-Transport-Security, and a second header from here would conflict with it.
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
 }
 
 app.MapGet("/activefilters", () =>
@@ -65,8 +70,6 @@ app.MapGet("/activefilters", () =>
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         });
 });
-
-app.UseForwardedHeaders();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
 
     volumes:
       - ./test-data/Website:/home/lookup/.lookup/website
