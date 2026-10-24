@@ -27,7 +27,7 @@
                        maxlength="@Constants.Constants.MaxSearchQueryLength"
                        aria-describedby="@InputDescribedBy"
                        aria-invalid="@(ShowTooShort ? "true" : null)"
-                       placeholder="Words, TxID, block hash, hex or dates:YYYY-MM-DD"
+                       placeholder="Words, TxID, block hash, hex or YYYY-MM-DD"
                        autocomplete="off"
                        spellcheck="false"
                        enterkeyhint="search"
@@ -116,7 +116,7 @@
 </div>
 
 <!-- About -->
-<div class="home-container">
+<div class="home-container about">
     <h2>About Look Up</h2>
 
     <p>A Bitcoin transaction can carry a small piece of data, and people use it to leave notes: greetings, thanks, declarations. Look Up scans the blockchain for these human-readable messages and makes them searchable.</p>
@@ -339,9 +339,16 @@
         margin: 0 auto 20px auto;
     }
 
-    /* Generous break after the hero, so the examples read as a separate, secondary section. */
+    /* A clear break after the hero, so the examples read as a separate, secondary section. */
     .examples-section {
-        margin-top: clamp(72px, 14vh, 144px);
+        margin-top: clamp(40px, 8vh, 88px);
+    }
+
+    /* The About text keeps a readable line length on wide screens, like the search field and the footer. */
+    .about > p,
+    .about .disclaimer {
+        max-width: 720px;
+        margin-inline: auto;
     }
 
     /* A dark field with a visible edge, so the button carries the action. */
@@ -418,6 +425,23 @@
 
         .search-form .search-button {
             padding: 0 20px;
+        }
+
+        /* The page already has side padding; the container's own would squeeze the field on phones. */
+        .search-container {
+            padding: 16px 0;
+        }
+    }
+
+    /* Phones: the button moves under the field, so the field gets the full width for its placeholder. */
+    @@media (max-width: 480px) {
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input {
+            flex: none;
+            font-size: 1rem;
         }
     }
 
