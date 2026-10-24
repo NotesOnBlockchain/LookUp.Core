@@ -3,20 +3,12 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject WebsiteConfig Config
 
-<!-- Landing page - example messages -->
+<!-- Landing page - search first, example messages below -->
 <div class="home-container">
     <h1>Look Up - Blockchain Message Explorer</h1>
 
-    <div class="cards-container">
-        @foreach (var message in ExampleMessages)
-        {
-            <MessageCard Message="message" />
-        }
-    </div>
-
     <!-- Search -->
-    <div class="home-container">
-        <h1>Find your message</h1>
+    <div class="search-section">
         <div class="search-container">
             <form class="search-form" @onsubmit="SendSearchReq">
                 <label for="search-query" class="visually-hidden">Search messages</label>
@@ -66,6 +58,17 @@
             else if (isRequested)
             {
                 <h3>No Results...</h3>
+            }
+        </div>
+    </div>
+
+    <!-- Example messages -->
+    <div class="examples-section">
+        <h1>Example messages</h1>
+        <div class="cards-container">
+            @foreach (var message in ExampleMessages)
+            {
+                <MessageCard Message="message" />
             }
         </div>
     </div>
@@ -165,6 +168,11 @@
         display: flex;
         gap: 10px;
         margin: 0 auto 20px auto;
+    }
+
+    /* Generous break after the search group, so the examples read as a separate, secondary section. */
+    .examples-section {
+        margin-top: 72px;
     }
 
     .search-input {
