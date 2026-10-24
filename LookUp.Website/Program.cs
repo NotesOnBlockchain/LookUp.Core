@@ -13,14 +13,24 @@ Logger.Initialize(dataDir);
 
 string configFilePath = Path.Combine(dataDir, "Config.json");
 
-WebsiteConfig config = WebsiteConfig.LoadFile(configFilePath);
+WebsiteConfig config;
+try
+{
+    config = WebsiteConfig.LoadFile(configFilePath);
+}
+catch (Exception ex)
+{
+    Logger.LogCritical(ex);
+    throw;
+}
+
 builder.Services.AddSingleton(services => config);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped(sp => new HttpClient());
+builder.Services.AddHttpClient();
 
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDir, "DataProtection")));
@@ -47,10 +57,12 @@ if (!app.Environment.IsDevelopment())
 app.MapGet("/activefilters", () =>
 {
     return Results.Json(
-        HexChecker.BannedMessageParts,
-        new System.Text.Json.JsonSerializerOptions
+        HexChecker.DescribeRules(),
+        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)
         {
-            WriteIndented = true
+            WriteIndented = true,
+            // Keeps characters such as < > & ' readable in the rule text; the response is JSON, never embedded in HTML.
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         });
 });
 
