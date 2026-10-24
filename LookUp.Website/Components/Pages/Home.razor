@@ -54,8 +54,15 @@
 
                 @if (isLoading)
                 {
+                    <!-- A read head sweeping over raw bytes; screen readers get the search status above instead. -->
                     <div class="loading-container">
-                        <div class="spinner large"></div>
+                        <div class="loading-bytes" aria-hidden="true">
+                            @for (var i = 0; i < LoadingBytes.Length; i++)
+                            {
+                                <span style="--i: @i">@LoadingBytes[i]</span>
+                            }
+                        </div>
+                        <div class="loading-label" aria-hidden="true">Reading the blockchain…</div>
                     </div>
                 }
                 else if (searchError is not null)
@@ -153,32 +160,52 @@
 </div>
 
 <style>
+    /* Loading: a row of bytes with a teal highlight sweeping left to right, like a read head going over the data. */
     .loading-container {
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 12px;
         margin-top: 40px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
         color: var(--text-muted);
     }
 
-    .spinner {
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.15);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+    .loading-bytes {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6em;
+        font-size: 1.125rem;
+        letter-spacing: 0.04em;
     }
 
-        .spinner.large {
-            width: 40px;
-            height: 40px;
-            border-width: 4px;
+        .loading-bytes span {
+            opacity: 0.35;
+            animation: byte-read 1.4s ease-in-out infinite;
+            animation-delay: calc(var(--i) * 90ms);
         }
 
-    @@keyframes spin {
-        to {
-            transform: rotate(360deg);
+    .loading-label {
+        font-size: 0.8125rem;
+    }
+
+    @@keyframes byte-read {
+        0%, 40%, 100% {
+            opacity: 0.35;
+            color: var(--text-muted);
+        }
+
+        15% {
+            opacity: 1;
+            color: var(--accent);
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .loading-bytes span {
+            animation: none;
+            opacity: 0.6;
         }
     }
 
@@ -369,7 +396,7 @@
         }
     }
 
-    /* The empty and error panels replace the spinner with a short fade, so the change of state reads as one. */
+    /* The empty and error panels replace the loading bytes with a short fade, so the change of state reads as one. */
     .search-error,
     .search-empty {
         animation: fade-in 200ms ease-out both;
@@ -424,6 +451,9 @@
 </style>
 
 @code {
+    // The loading state's bytes: a real OP_RETURN script (6a = OP_RETURN, 07 = push 7 bytes) carrying "Look Up".
+    private static readonly string[] LoadingBytes = { "6a", "07", "4c", "6f", "6f", "6b", "20", "55", "70" };
+
     private List<MessageModel> ExampleMessages = new()
     {
         new MessageModel(
