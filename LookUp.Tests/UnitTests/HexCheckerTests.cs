@@ -1,6 +1,6 @@
 using LookUp.Helpers;
 
-namespace LookUp.Tests
+namespace LookUp.Tests.UnitTests
 {
     public class HexCheckerTests
     {

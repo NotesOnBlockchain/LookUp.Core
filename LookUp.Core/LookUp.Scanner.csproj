@@ -21,4 +21,8 @@
 		<ProjectReference Include="..\LookUp\LookUp.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="LookUp.Tests" />
+	</ItemGroup>
+
 </Project>

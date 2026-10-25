@@ -49,7 +49,7 @@ namespace LookUp.Scanner.Services
             }
         }
 
-        private async Task ScanAsync(CancellationToken stoppingToken)
+        internal async Task ScanAsync(CancellationToken stoppingToken)
         {
             var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(stoppingToken);
             var tipHeight = (int)blockchainInfo.Blocks;
@@ -98,7 +98,7 @@ namespace LookUp.Scanner.Services
         }
 
         // A transaction can carry several OP_RETURN outputs; each one is checked on its own.
-        private static IEnumerable<MessageModel> ExtractMessages(VerboseTransactionInfo tx)
+        internal static IEnumerable<MessageModel> ExtractMessages(VerboseTransactionInfo tx)
         {
             foreach (var output in tx.Outputs)
             {
