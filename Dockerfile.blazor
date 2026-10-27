@@ -4,17 +4,12 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 
-COPY LookUp/LookUp.csproj LookUp/
-COPY LookUp.Website/LookUp.Website.csproj LookUp.Website/
-
-RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \
-    dotnet restore LookUp.Website/LookUp.Website.csproj
-
 COPY LookUp/ LookUp/
 COPY LookUp.Website/ LookUp.Website/
 
+# Restore must see the .razor files: only then does the SDK restore the package that provides _framework/blazor.web.js.
 RUN --mount=type=cache,id=nuget-${TARGETARCH},target=/root/.nuget/packages \
-    dotnet publish LookUp.Website/LookUp.Website.csproj -c Release -o /app/publish --no-restore -a $TARGETARCH
+    dotnet publish LookUp.Website/LookUp.Website.csproj -c Release -o /app/publish -a $TARGETARCH
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

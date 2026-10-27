@@ -5,9 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<RuntimeIdentifiers>win-x64;linux-x64;linux-arm64;</RuntimeIdentifiers>
-	<!-- _framework/blazor.web.js comes from a package that the SDK restores only when it sees .razor files.
-	     Dockerfile.blazor restores before the sources are copied, so without this the published site has no Blazor script. -->
-	<RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
   </PropertyGroup>
 
 	<ItemGroup>
