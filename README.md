@@ -9,7 +9,7 @@ Check out the official website of the project [here](https://notesontheblockchai
 ## Requirements
 
 - [Git](https://git-scm.com/downloads)
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download)
 - [PostgreSQL 15+](https://www.postgresql.org/download/)
 - [Bitcoin Knots](https://bitcoinknots.org/)  
 
